@@ -1,0 +1,4 @@
+(library
+ (name buffet)
+ (public_name buffet)
+ (libraries bigstringaf))

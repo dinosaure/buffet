@@ -1,0 +1,20 @@
+opam-version: "1.2"
+name:         "buffet"
+maintainer:   "Romain Calascibetta <romain.calascibetta@gmail.com>"
+authors:      "Romain Calascibetta <romain.calascibetta@gmail.com>"
+homepage:     "https://github.com/mirage/buffet"
+bug-reports:  "https://github.com/mirage/buffet/issues"
+dev-repo:     "https://github.com/mirage/buffet.git"
+doc:          "https://mirage.github.io/buffet/"
+license:      "MIT"
+
+build: [[ "dune" "build" "--only-packages" name "--root" "." "-j" jobs ]]
+build-test: [[ "dune" "runtest" "--only-packages" name "--root" "." "-j" jobs ]]
+
+depends: [
+  "dune"       {build}
+  "base-bytes"
+  "bigstringaf"
+]
+
+available: [ocaml-version >= "4.03.0"]
