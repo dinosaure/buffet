@@ -1,0 +1,3 @@
+(executable
+ (name benchmark)
+ (libraries fmt.tty logs.fmt oclock perf bechamel buffet))
