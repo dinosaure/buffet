@@ -7,9 +7,7 @@ let invalid_bounds off len real_len =
     len
 
 external swap16 : int -> int = "%bswap16"
-
 external swap32 : int32 -> int32 = "%bswap_int32"
-
 external swap64 : int64 -> int64 = "%bswap_int64"
 
 exception Break
@@ -18,11 +16,8 @@ module type X0 = sig
   type t
 
   val length : t -> int
-
   external unsafe_get_int16 : t -> int -> int = "%caml_string_get16u"
-
   external unsafe_get_int32 : t -> int -> int32 = "%caml_string_get32u"
-
   external unsafe_get_int64 : t -> int -> int64 = "%caml_string_get64u"
 end
 
@@ -82,17 +77,13 @@ module Bytes : sig
   type t = bytes
 
   include S0 with type t := t
-
   include S1 with type t := t
 end = struct
   type t = Bytes.t
 
   external length : t -> int = "%bytes_length"
-
   external unsafe_get : t -> int -> char = "%bytes_unsafe_get"
-
   external unsafe_set : t -> int -> char -> unit = "%bytes_unsafe_set"
-
   external create : int -> t = "caml_create_bytes"
 
   external unsafe_fill :
@@ -121,7 +112,6 @@ end = struct
     else unsafe_copy t ~off ~len
 
   let unsafe_sub = unsafe_copy
-
   let sub = copy
 
   let get t off =
@@ -138,14 +128,11 @@ end = struct
     let length x = length x
 
     external unsafe_get_int16 : t -> int -> int = "%caml_string_get16u"
-
     external unsafe_get_int32 : t -> int -> int32 = "%caml_string_get32u"
-
     external unsafe_get_int64 : t -> int -> int64 = "%caml_string_get64u"
   end)
 
   external compare : bytes -> bytes -> int = "caml_bytes_compare" [@@noalloc]
-
   external unsafe_get_compare : bytes -> int -> int = "%bytes_unsafe_get"
 
   let unsafe_sub_compare ~a ~b ak bk =
@@ -165,7 +152,10 @@ end = struct
 
   let sub_compare ~a ~b ak bk =
     if
-      a.off < 0 || b.off < 0 || a.len < 0 || b.len < 0
+      a.off < 0
+      || b.off < 0
+      || a.len < 0
+      || b.len < 0
       || a.off > length ak - a.len
       || b.off > length bk - b.len
     then
@@ -178,13 +168,9 @@ end = struct
   external equal : bytes -> bytes -> bool = "caml_bytes_equal" [@@noalloc]
 
   let unsafe_sub_equal ~a ~b ak bk = unsafe_sub_compare ~a ~b ak bk = 0
-
   let sub_equal ~a ~b ak bk = sub_compare ~a ~b ak bk = 0
-
   let pp _ppf _x = ()
-
   let unsafe_sub_pp ~off:_ ~len:_ _ppf _x = ()
-
   let sub_pp ~off:_ ~len:_ _ppf _x = ()
 
   external unsafe_set_int16 :
@@ -258,7 +244,9 @@ end = struct
 
   let blit src ~src_off dst ~dst_off ~len =
     if
-      len < 0 || src_off < 0 || dst_off < 0
+      len < 0
+      || src_off < 0
+      || dst_off < 0
       || src_off > length src - len
       || dst_off > length dst - len
     then invalid_blit src_off dst_off len (length src) (length dst)
@@ -273,11 +261,8 @@ end = struct
   type t = String.t
 
   external length : t -> int = "%string_length"
-
   external unsafe_get : t -> int -> char = "%string_unsafe_get"
-
   external unsafe_bytes_to_string : bytes -> string = "%bytes_to_string"
-
   external unsafe_string_to_bytes : string -> bytes = "%bytes_of_string"
 
   let get buf off =
@@ -285,7 +270,6 @@ end = struct
     else unsafe_get buf off
 
   let make len chr = unsafe_bytes_to_string (Bytes.make len chr)
-
   let empty = unsafe_bytes_to_string (Bytes.create 0)
 
   let unsafe_copy t ~off ~len =
@@ -308,9 +292,7 @@ end = struct
     let length x = length x
 
     external unsafe_get_int16 : t -> int -> int = "%caml_string_get16u"
-
     external unsafe_get_int32 : t -> int -> int32 = "%caml_string_get32u"
-
     external unsafe_get_int64 : t -> int -> int64 = "%caml_string_get64u"
   end)
 
@@ -336,7 +318,10 @@ end = struct
 
   let sub_compare ~a ~b ak bk =
     if
-      a.off < 0 || b.off < 0 || a.len < 0 || b.len < 0
+      a.off < 0
+      || b.off < 0
+      || a.len < 0
+      || b.len < 0
       || a.off > length ak - a.len
       || b.off > length bk - b.len
     then
@@ -349,13 +334,9 @@ end = struct
   external equal : string -> string -> bool = "caml_string_equal" [@@noalloc]
 
   let unsafe_sub_equal ~a ~b ak bk = unsafe_sub_compare ~a ~b ak bk = 0
-
   let sub_equal ~a ~b ak bk = sub_compare ~a ~b ak bk = 0
-
   let pp _ppf _x = ()
-
   let unsafe_sub_pp ~off:_ ~len:_ _ppf _x = ()
-
   let sub_pp ~off:_ ~len:_ _ppf _x = ()
 end
 
@@ -363,10 +344,11 @@ module Bigstring : sig
   type t = Bigstringaf.t
 
   include S0 with type t := t
-
   include S1 with type t := t
 end = struct
   include Bigstringaf
+
+  let create len = create len
 
   external unsafe_fill : t -> char -> unit = "caml_ba_fill"
 
@@ -375,9 +357,7 @@ end = struct
     unsafe_fill rs chr ; rs
 
   let unsafe_sub t ~off ~len = sub t ~off ~len
-
   let unsafe_copy t ~off ~len = sub t ~off ~len
-
   let pp _ppf _x = ()
 
   external unsafe_get_compare : t -> int -> int = "%caml_ba_unsafe_ref_1"
@@ -407,12 +387,8 @@ end = struct
     compare (sub ~off:a.off ~len:a.len ak) (sub ~off:b.off ~len:b.len bk)
 
   let equal a b = compare a b = 0
-
   let unsafe_sub_equal ~a ~b ak bk = unsafe_sub_compare ~a ~b ak bk = 0
-
   let sub_equal ~a ~b ak bk = sub_compare ~a ~b ak bk = 0
-
   let unsafe_sub_pp ~off:_ ~len:_ _ppf _x = ()
-
   let sub_pp ~off:_ ~len:_ _ppf _x = ()
 end

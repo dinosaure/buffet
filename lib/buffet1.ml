@@ -2,9 +2,7 @@ open S
 open Buffet0
 
 type bytes = Bytes.t
-
 type string = String.t
-
 type bigstring = Bigstring.t
 
 type 'k tag =
@@ -13,9 +11,7 @@ type 'k tag =
   | Bigstring : bigstring tag
 
 let bytes = Bytes
-
 let string = String
-
 let bigstring = Bigstring
 
 type value = Bytes of bytes | String of string | Bigstring of bigstring
@@ -50,9 +46,11 @@ let sub : type k. k tag -> (k, k) sub = function
   | String -> String.sub
   | Bigstring -> Bigstring.sub
 
-let create : type k. k tag -> int -> k = function
-  | Bytes -> Bytes.create
-  | Bigstring -> Bigstring.create
+let create : type k. k tag -> int -> k =
+ fun witness len ->
+  match witness with
+  | Bytes -> Bytes.create len
+  | Bigstring -> Bigstring.create len
   | String -> invalid_arg "create unavailable on string"
 
 let length : type k. k tag -> k length = function
