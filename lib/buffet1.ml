@@ -73,9 +73,11 @@ let get : type k. k tag -> (k, char) get = function
   | String -> String.get
   | Bigstring -> Bigstring.get
 
-let set : type k. k tag -> (k, char) set = function
-  | Bytes -> Bytes.set
-  | Bigstring -> Bigstring.set
+let set : type k. k tag -> (k, char) set =
+ fun witness buf pos chr ->
+  match witness with
+  | Bytes -> Bytes.set buf pos chr
+  | Bigstring -> Bigstring.set buf pos chr
   | String -> invalid_arg "set unavailable on string"
 
 let pp : type k. k tag -> k fmt = function
