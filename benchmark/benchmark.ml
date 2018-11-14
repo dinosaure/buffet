@@ -82,7 +82,7 @@ let test_0 =
 
 let test_1 =
   Test.make_indexed ~name:"Buffet0.Bigstring.create"
-    ~args:[0; 1; 10; 100; 500; 1000] create_buffet_0_bytes
+    ~args:[0; 1; 10; 100; 500; 1000] create_buffet_0_bigstring
 
 let test_2 =
   Test.make_indexed ~name:"Buffet0.Bytes.set" ~args:[1; 10; 100]
@@ -98,7 +98,7 @@ let test_4 =
 
 let test_5 =
   Test.make_indexed ~name:"Buffet1.Bigstring.create"
-    ~args:[0; 1; 10; 100; 500; 1000] create_buffet_1_bytes
+    ~args:[0; 1; 10; 100; 500; 1000] create_buffet_1_bigstring
 
 let test_6 =
   Test.make_indexed ~name:"Bigstringaf.create" ~args:[0; 1; 10; 100; 500; 1000]
