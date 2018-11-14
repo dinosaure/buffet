@@ -48,11 +48,33 @@ module Instance = struct
     Measure.instance (module Realtime_clock) Extension.realtime_clock
 end
 
+(** TESTS **)
+
+let () = Random.self_init ()
+
 let create_buffet_0_bytes len =
   Staged.stage (fun () -> Buffet.Buffet0.Bytes.create len)
 
 let create_buffet_0_bigstring len =
   Staged.stage (fun () -> Buffet.Buffet0.Bigstring.create len)
+
+let set_buffet_0_bytes len =
+  let buf = Buffet.Buffet0.Bytes.create len in
+  let pos = Random.int len in
+  Staged.stage (fun () -> Buffet.Buffet0.Bytes.set buf pos '\042')
+
+let set_buffet_0_bigstring len =
+  let buf = Buffet.Buffet0.Bigstring.create len in
+  let pos = Random.int len in
+  Staged.stage (fun () -> Buffet.Buffet0.Bigstring.set buf pos '\042')
+
+let create_buffet_1_bytes len =
+  Staged.stage (fun () -> Buffet.Buffet1.(create bytes len))
+
+let create_buffet_1_bigstring len =
+  Staged.stage (fun () -> Buffet.Buffet1.(create bigstring len))
+
+let create_bigstringaf len = Staged.stage (fun () -> Bigstringaf.create len)
 
 let test_0 =
   Test.make_indexed ~name:"Buffet0.Bytes.create"
@@ -61,6 +83,28 @@ let test_0 =
 let test_1 =
   Test.make_indexed ~name:"Buffet0.Bigstring.create"
     ~args:[0; 1; 10; 100; 500; 1000] create_buffet_0_bytes
+
+let test_2 =
+  Test.make_indexed ~name:"Buffet0.Bytes.set" ~args:[1; 10; 100]
+    set_buffet_0_bytes
+
+let test_3 =
+  Test.make_indexed ~name:"Buffet0.Bigstring.set" ~args:[1; 10; 100]
+    set_buffet_0_bigstring
+
+let test_4 =
+  Test.make_indexed ~name:"Buffet1.Bytes.create"
+    ~args:[0; 1; 10; 100; 500; 1000] create_buffet_1_bytes
+
+let test_5 =
+  Test.make_indexed ~name:"Buffet1.Bigstring.create"
+    ~args:[0; 1; 10; 100; 500; 1000] create_buffet_1_bytes
+
+let test_6 =
+  Test.make_indexed ~name:"Bigstringaf.create" ~args:[0; 1; 10; 100; 500; 1000]
+    create_bigstringaf
+
+(** TESTS **)
 
 let zip l1 l2 =
   let rec go acc = function
@@ -141,17 +185,19 @@ let () =
     Instance.
       [minor_allocated; major_allocated; monotonic_clock; realtime_clock]
   in
+  let tests = [test_0; test_1; test_2; test_3; test_4; test_5; test_6] in
   let measure_and_analyze test =
     let results =
-      Benchmark.all ~quota:(Benchmark.s 1.) ~run:3000 instances test
+      Benchmark.all ~stabilize:true ~quota:(Benchmark.s 1.) ~run:3000 instances
+        test
     in
     List.map
       (fun x -> List.map (Analyze.analyze ols (Measure.label x)) results)
       instances
   in
-  let results = List.map measure_and_analyze [test_0; test_1] in
+  let results = List.map measure_and_analyze tests in
   List.iter
     (fun (test, result) ->
       Fmt.pr "---------- %s ----------\n%!" (Test.name test) ;
       Fmt.pr "%a\n%!" pp (test, result) )
-    (zip [test_0; test_1] results)
+    (zip tests results)
