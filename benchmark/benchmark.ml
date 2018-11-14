@@ -84,6 +84,26 @@ let set_buffet_1_bigstring len =
   let pos = Random.int len in
   Staged.stage (fun () -> Buffet.Buffet1.(set bigstring buf pos '\042'))
 
+let unsafe_set_buffet_0_bytes len =
+  let buf = Buffet.Buffet0.Bytes.create len in
+  let pos = Random.int len in
+  Staged.stage (fun () -> Buffet.Buffet0.Bytes.unsafe_set buf pos '\042')
+
+let unsafe_set_buffet_0_bigstring len =
+  let buf = Buffet.Buffet0.Bigstring.create len in
+  let pos = Random.int len in
+  Staged.stage (fun () -> Buffet.Buffet0.Bigstring.unsafe_set buf pos '\042')
+
+let unsafe_set_buffet_1_bytes len =
+  let buf = Buffet.Buffet1.(create bytes len) in
+  let pos = Random.int len in
+  Staged.stage (fun () -> Buffet.Buffet1.(unsafe_set bytes buf pos '\042'))
+
+let unsafe_set_buffet_1_bigstring len =
+  let buf = Buffet.Buffet1.(create bigstring len) in
+  let pos = Random.int len in
+  Staged.stage (fun () -> Buffet.Buffet1.(unsafe_set bigstring buf pos '\042'))
+
 let create_bigstringaf len = Staged.stage (fun () -> Bigstringaf.create len)
 
 let test_0 =
@@ -121,6 +141,22 @@ let test_7 =
 let test_8 =
   Test.make_indexed ~name:"Buffet1.Bigstring.set" ~args:[1; 10; 100]
     set_buffet_1_bigstring
+
+let test_9 =
+  Test.make_indexed ~name:"Buffet0.Bytes.unsafe_set" ~args:[1; 10; 100]
+    unsafe_set_buffet_0_bytes
+
+let test_10 =
+  Test.make_indexed ~name:"Buffet0.Bigstring.unsafe_set" ~args:[1; 10; 100]
+    unsafe_set_buffet_0_bigstring
+
+let test_11 =
+  Test.make_indexed ~name:"Buffet1.Bytes.unsafe_set" ~args:[1; 10; 100]
+    unsafe_set_buffet_1_bytes
+
+let test_12 =
+  Test.make_indexed ~name:"Buffet1.Bigstring.unsafe_set" ~args:[1; 10; 100]
+    unsafe_set_buffet_1_bigstring
 
 (** TESTS **)
 
@@ -204,7 +240,8 @@ let () =
       [minor_allocated; major_allocated; monotonic_clock; realtime_clock]
   in
   let tests =
-    [test_0; test_1; test_2; test_3; test_4; test_5; test_6; test_7; test_8]
+    [ test_0; test_1; test_2; test_3; test_4; test_5; test_6; test_7; test_8
+    ; test_9; test_10; test_11; test_12 ]
   in
   let measure_and_analyze test =
     let results =
