@@ -74,6 +74,16 @@ let create_buffet_1_bytes len =
 let create_buffet_1_bigstring len =
   Staged.stage (fun () -> Buffet.Buffet1.(create bigstring len))
 
+let set_buffet_1_bytes len =
+  let buf = Buffet.Buffet1.(create bytes len) in
+  let pos = Random.int len in
+  Staged.stage (fun () -> Buffet.Buffet1.(set bytes buf pos '\042'))
+
+let set_buffet_1_bigstring len =
+  let buf = Buffet.Buffet1.(create bigstring len) in
+  let pos = Random.int len in
+  Staged.stage (fun () -> Buffet.Buffet1.(set bigstring buf pos '\042'))
+
 let create_bigstringaf len = Staged.stage (fun () -> Bigstringaf.create len)
 
 let test_0 =
@@ -103,6 +113,14 @@ let test_5 =
 let test_6 =
   Test.make_indexed ~name:"Bigstringaf.create" ~args:[0; 1; 10; 100; 500; 1000]
     create_bigstringaf
+
+let test_7 =
+  Test.make_indexed ~name:"Buffet1.Bytes.set" ~args:[1; 10; 100]
+    set_buffet_1_bytes
+
+let test_8 =
+  Test.make_indexed ~name:"Buffet1.Bigstring.set" ~args:[1; 10; 100]
+    set_buffet_1_bigstring
 
 (** TESTS **)
 
@@ -185,7 +203,9 @@ let () =
     Instance.
       [minor_allocated; major_allocated; monotonic_clock; realtime_clock]
   in
-  let tests = [test_0; test_1; test_2; test_3; test_4; test_5; test_6] in
+  let tests =
+    [test_0; test_1; test_2; test_3; test_4; test_5; test_6; test_7; test_8]
+  in
   let measure_and_analyze test =
     let results =
       Benchmark.all ~stabilize:true ~quota:(Benchmark.s 1.) ~run:3000 instances
