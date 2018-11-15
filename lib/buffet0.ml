@@ -141,7 +141,7 @@ end = struct
     else
       let rs = ref 0 in
       try
-        for i = 0 to a.len do
+        for i = 0 to a.len - 1 do
           rs :=
             unsafe_get_compare ak (a.off + i)
             - unsafe_get_compare bk (b.off + i) ;
@@ -347,8 +347,6 @@ module Bigstring : sig
   include S1 with type t := t
 end = struct
   include Bigstringaf
-
-  let create len = create len
 
   external unsafe_fill : t -> char -> unit = "caml_ba_fill"
 

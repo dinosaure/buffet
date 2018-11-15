@@ -2,7 +2,6 @@ module Bytes : sig
   type t = bytes
 
   include S.S0 with type t := bytes
-
   include S.S1 with type t := bytes
 end
 
@@ -17,6 +16,5 @@ module Bigstring : sig
     (char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
 
   include S.S0 with type t := t
-
   include S.S1 with type t := t
 end

@@ -6,32 +6,16 @@ type async = [`Async]
 type aligned = [`Aligned]
 type capabilities = [rd | wr | async | aligned]
 
-module Bytes : sig
-  type 'a t = private bytes constraint 'a = [< capabilities]
+module type S0 = sig
+  type 'a t constraint 'a = [< capabilities]
 
+  val unsafe_copy : (([> rd] as 'a) t, 'a t) copy
+  val copy : (([> rd] as 'a) t, 'a t) copy
+  val unsafe_sub : (([> rd] as 'a) t, 'a t) sub
+  val sub : (([> rd] as 'a) t, 'a t) sub
   val length : _ t -> int
-  val unsafe_get : ([> rd] t, char) get
-  val unsafe_set : ([> wr] t, char) set
-  val create : int -> [rd | wr] t
-  val unsafe_blit : ([> rd] t, [> wr] t) blit
-  val blit : ([> rd] t, [> wr] t) blit
-  val make : int -> char -> [rd | wr] t
-  val empty : [rd | wr] t
-  val unsafe_copy : ([> rd] t, [rd | wr] t) copy
-  val copy : ([> rd] t, [rd | wr] t) copy
-  val unsafe_sub : ([> rd] t, [rd | wr] t) sub
-  val sub : ([> rd] t, [rd | wr] t) sub
-  val get : ([> rd] t, char) get
-  val set : ([> wr] t, char) set
-  val compare : [> rd] t compare
-  val equal : [> rd] t equal
-  val sub_compare : a:slice -> b:slice -> [> rd] t compare
-  val sub_equal : a:slice -> b:slice -> [> rd] t equal
-  val unsafe_sub_compare : a:slice -> b:slice -> [> rd] t compare
-  val unsafe_sub_equal : a:slice -> b:slice -> [> rd] t equal
-  val pp : [> rd] t fmt
-  val unsafe_sub_pp : off:int -> len:int -> [> rd] t fmt
-  val sub_pp : off:int -> len:int -> [> rd] t fmt
+  val unsafe_get : [> rd] t -> int -> char
+  val get : [> rd] t -> int -> char
   val unsafe_get_int16_le : ([> rd] t, int) get
   val get_int16_le : ([> rd] t, int) get
   val unsafe_get_int16_be : ([> rd] t, int) get
@@ -44,6 +28,22 @@ module Bytes : sig
   val get_int64_le : ([> rd] t, int64) get
   val unsafe_get_int64_be : ([> rd] t, int64) get
   val get_int64_be : ([> rd] t, int64) get
+  val compare : [> rd] t compare
+  val unsafe_sub_compare : a:slice -> b:slice -> [> rd] t compare
+  val sub_compare : a:slice -> b:slice -> [> rd] t compare
+  val equal : [> rd] t equal
+  val unsafe_sub_equal : a:slice -> b:slice -> [> rd] t equal
+  val sub_equal : a:slice -> b:slice -> [> rd] t equal
+  val pp : [> rd] t fmt
+  val unsafe_sub_pp : off:int -> len:int -> [> rd] t fmt
+  val sub_pp : off:int -> len:int -> [> rd] t fmt
+end
+
+module type S1 = sig
+  type 'a t constraint 'a = [< capabilities]
+
+  val unsafe_set : ([> wr] t, char) set
+  val set : ([> wr] t, char) set
   val unsafe_set_int16_le : ([> wr] t, int) set
   val set_int16_le : ([> wr] t, int) set
   val unsafe_set_int16_be : ([> wr] t, int) set
@@ -56,4 +56,40 @@ module Bytes : sig
   val set_int64_le : ([> wr] t, int64) set
   val unsafe_set_int64_be : ([> wr] t, int64) set
   val set_int64_be : ([> wr] t, int64) set
+  val unsafe_blit : ([> rd] t, [> wr] t) blit
+  val blit : ([> rd] t, [> wr] t) blit
+end
+
+module Bytes : sig
+  type 'a t = private bytes constraint 'a = [< capabilities]
+
+  val create : int -> [rd | wr] t
+  val make : int -> char -> [rd | wr] t
+  val empty : [rd | wr] t
+
+  include S0 with type 'a t := 'a t
+  include S1 with type 'a t := 'a t
+end
+
+module String : sig
+  type 'a t = private string constraint 'a = [< capabilities]
+
+  val make : int -> char -> [rd | wr] t
+  val empty : [rd | wr] t
+
+  include S0 with type 'a t := 'a t
+end
+
+module Bigstring : sig
+  type 'a t =
+    private
+    (char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
+    constraint 'a = [< capabilities]
+
+  val create : int -> [rd | wr | async] t
+  val make : int -> char -> [rd | wr | async] t
+  val empty : [rd | wr | async] t
+
+  include S0 with type 'a t := 'a t
+  include S1 with type 'a t := 'a t
 end

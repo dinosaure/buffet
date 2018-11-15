@@ -16,35 +16,45 @@ let bigstring = Bigstring
 
 type value = Bytes of bytes | String of string | Bigstring of bigstring
 
-let make : type k. k tag -> int -> char -> k = function
-  | Bytes -> Bytes.make
-  | String -> String.make
-  | Bigstring -> Bigstring.make
+let make : type k. k tag -> int -> char -> k =
+ fun witness len chr ->
+  match witness with
+  | Bytes -> Bytes.make len chr
+  | String -> String.make len chr
+  | Bigstring -> Bigstring.make len chr
 
 let empty : type k. k tag -> k = function
   | Bytes -> Bytes.empty
   | String -> String.empty
   | Bigstring -> Bigstring.empty
 
-let unsafe_copy : type k. k tag -> (k, k) copy = function
-  | Bytes -> Bytes.unsafe_copy
-  | String -> String.unsafe_copy
-  | Bigstring -> Bigstring.unsafe_copy
+let unsafe_copy : type k. k tag -> (k, k) copy =
+ fun witness buf ->
+  match witness with
+  | Bytes -> Bytes.unsafe_copy buf
+  | String -> String.unsafe_copy buf
+  | Bigstring -> Bigstring.unsafe_copy buf
 
-let copy : type k. k tag -> (k, k) copy = function
-  | Bytes -> Bytes.copy
-  | String -> String.copy
-  | Bigstring -> Bigstring.copy
+let copy : type k. k tag -> (k, k) copy =
+ fun witness buf ->
+  match witness with
+  | Bytes -> Bytes.copy buf
+  | String -> String.copy buf
+  | Bigstring -> Bigstring.copy buf
 
-let unsafe_sub : type k. k tag -> (k, k) sub = function
-  | Bytes -> Bytes.unsafe_sub
-  | String -> String.unsafe_sub
-  | Bigstring -> Bigstring.unsafe_sub
+let unsafe_sub : type k. k tag -> (k, k) sub =
+ fun witness buf ~off ~len ->
+  match witness with
+  | Bytes -> Bytes.unsafe_sub buf ~off ~len
+  | String -> String.unsafe_sub buf ~off ~len
+  | Bigstring -> Bigstring.unsafe_sub buf ~off ~len
 
-let sub : type k. k tag -> (k, k) sub = function
-  | Bytes -> Bytes.sub
-  | String -> String.sub
-  | Bigstring -> Bigstring.sub
+let sub : type k. k tag -> (k, k) sub =
+ fun witness buf ~off ~len ->
+  match witness with
+  | Bytes -> Bytes.sub buf ~off ~len
+  | String -> String.sub buf ~off ~len
+  | Bigstring -> Bigstring.sub buf ~off ~len
 
 let create : type k. k tag -> int -> k =
  fun witness len ->
@@ -53,25 +63,33 @@ let create : type k. k tag -> int -> k =
   | Bigstring -> Bigstring.create len
   | String -> invalid_arg "create unavailable on string"
 
-let length : type k. k tag -> k length = function
-  | Bytes -> Bytes.length
-  | String -> String.length
-  | Bigstring -> Bigstring.length
+let length : type k. k tag -> k length =
+ fun witness buf ->
+  match witness with
+  | Bytes -> Bytes.length buf
+  | String -> String.length buf
+  | Bigstring -> Bigstring.length buf
 
-let unsafe_get : type k. k tag -> (k, char) get = function
-  | Bytes -> Bytes.unsafe_get
-  | String -> String.unsafe_get
-  | Bigstring -> Bigstring.unsafe_get
+let unsafe_get : type k. k tag -> (k, char) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.unsafe_get buf pos
+  | String -> String.unsafe_get buf pos
+  | Bigstring -> Bigstring.unsafe_get buf pos
 
-let unsafe_set : type k. k tag -> (k, char) set = function
-  | Bytes -> Bytes.unsafe_set
-  | Bigstring -> Bigstring.unsafe_set
+let unsafe_set : type k. k tag -> (k, char) set =
+ fun witness buf pos chr ->
+  match witness with
+  | Bytes -> Bytes.unsafe_set buf pos chr
+  | Bigstring -> Bigstring.unsafe_set buf pos chr
   | String -> invalid_arg "unsafe_set unavailable on string"
 
-let get : type k. k tag -> (k, char) get = function
-  | Bytes -> Bytes.get
-  | String -> String.get
-  | Bigstring -> Bigstring.get
+let get : type k. k tag -> (k, char) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get buf pos
+  | String -> buf.[pos]
+  | Bigstring -> Bigstring.get buf pos
 
 let set : type k. k tag -> (k, char) set =
  fun witness buf pos chr ->
@@ -80,25 +98,33 @@ let set : type k. k tag -> (k, char) set =
   | Bigstring -> Bigstring.set buf pos chr
   | String -> invalid_arg "set unavailable on string"
 
-let pp : type k. k tag -> k fmt = function
-  | Bytes -> Bytes.pp
-  | String -> String.pp
-  | Bigstring -> Bigstring.pp
+let pp : type k. k tag -> k fmt =
+ fun witness ppf buf ->
+  match witness with
+  | Bytes -> Bytes.pp ppf buf
+  | String -> String.pp ppf buf
+  | Bigstring -> Bigstring.pp ppf buf
 
-let unsafe_sub_pp : type k. k tag -> off:int -> len:int -> k fmt = function
-  | Bytes -> Bytes.unsafe_sub_pp
-  | String -> String.unsafe_sub_pp
-  | Bigstring -> Bigstring.unsafe_sub_pp
+let unsafe_sub_pp : type k. k tag -> off:int -> len:int -> k fmt =
+ fun witness ~off ~len ppf buf ->
+  match witness with
+  | Bytes -> Bytes.unsafe_sub_pp ~off ~len ppf buf
+  | String -> String.unsafe_sub_pp ~off ~len ppf buf
+  | Bigstring -> Bigstring.unsafe_sub_pp ~off ~len ppf buf
 
-let sub_pp : type k. k tag -> off:int -> len:int -> k fmt = function
-  | Bytes -> Bytes.sub_pp
-  | String -> String.sub_pp
-  | Bigstring -> Bigstring.sub_pp
+let sub_pp : type k. k tag -> off:int -> len:int -> k fmt =
+ fun witness ~off ~len ppf buf ->
+  match witness with
+  | Bytes -> Bytes.sub_pp ~off ~len ppf buf
+  | String -> String.sub_pp ~off ~len ppf buf
+  | Bigstring -> Bigstring.sub_pp ~off ~len ppf buf
 
-let compare : type k. k tag -> k compare = function
-  | Bytes -> Bytes.compare
-  | String -> String.compare
-  | Bigstring -> Bigstring.compare
+let compare : type k. k tag -> k compare =
+ fun witness a b ->
+  match witness with
+  | Bytes -> Bytes.compare a b
+  | String -> String.compare a b
+  | Bigstring -> Bigstring.compare a b
 
 let unsafe_sub_compare : type k. k tag -> a:slice -> b:slice -> k compare =
   function
