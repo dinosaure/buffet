@@ -106,57 +106,85 @@ let unsafe_set_buffet_1_bigstring len =
 
 let create_bigstringaf len = Staged.stage (fun () -> Bigstringaf.create len)
 
-let test_0 =
+let create_buffet_2_bytes len =
+  Staged.stage (fun () -> Buffet.Buffet2.(create bytes len))
+
+let create_buffet_2_bigstring len =
+  Staged.stage (fun () -> Buffet.Buffet2.(create bigstring len))
+
+let test_buffet_0_bytes_create =
   Test.make_indexed ~name:"Buffet0.Bytes.create"
     ~args:[0; 1; 10; 100; 500; 1000] create_buffet_0_bytes
 
-let test_1 =
+let test_buffet_0_bigstring_create =
   Test.make_indexed ~name:"Buffet0.Bigstring.create"
     ~args:[0; 1; 10; 100; 500; 1000] create_buffet_0_bigstring
 
-let test_2 =
-  Test.make_indexed ~name:"Buffet0.Bytes.set" ~args:[1; 10; 100]
-    set_buffet_0_bytes
-
-let test_3 =
-  Test.make_indexed ~name:"Buffet0.Bigstring.set" ~args:[1; 10; 100]
-    set_buffet_0_bigstring
-
-let test_4 =
+let test_buffet_1_bytes_create =
   Test.make_indexed ~name:"Buffet1.Bytes.create"
     ~args:[0; 1; 10; 100; 500; 1000] create_buffet_1_bytes
 
-let test_5 =
+let test_buffet_1_bigstring_create =
   Test.make_indexed ~name:"Buffet1.Bigstring.create"
     ~args:[0; 1; 10; 100; 500; 1000] create_buffet_1_bigstring
 
-let test_6 =
+let test_buffet_2_bytes_create =
+  Test.make_indexed ~name:"Buffet2.Bytes.create"
+    ~args:[0; 1; 10; 100; 500; 1000] create_buffet_2_bytes
+
+let test_buffet_2_bigstring_create =
+  Test.make_indexed ~name:"Buffet2.Bigstring.create"
+    ~args:[0; 1; 10; 100; 500; 1000] create_buffet_2_bigstring
+
+let test_bigstringaf_create =
   Test.make_indexed ~name:"Bigstringaf.create" ~args:[0; 1; 10; 100; 500; 1000]
     create_bigstringaf
 
-let test_7 =
+let test_create =
+  [ test_bigstringaf_create; test_buffet_0_bytes_create
+  ; test_buffet_0_bigstring_create; test_buffet_1_bytes_create
+  ; test_buffet_1_bigstring_create; test_buffet_2_bytes_create
+  ; test_buffet_2_bigstring_create ]
+
+let test_buffet_0_bytes_set =
+  Test.make_indexed ~name:"Buffet0.Bytes.set" ~args:[1; 10; 100]
+    set_buffet_0_bytes
+
+let test_buffet_0_bigstring_set =
+  Test.make_indexed ~name:"Buffet0.Bigstring.set" ~args:[1; 10; 100]
+    set_buffet_0_bigstring
+
+let test_buffet_1_bytes_set =
   Test.make_indexed ~name:"Buffet1.Bytes.set" ~args:[1; 10; 100]
     set_buffet_1_bytes
 
-let test_8 =
+let test_buffet_1_bigstring_set =
   Test.make_indexed ~name:"Buffet1.Bigstring.set" ~args:[1; 10; 100]
     set_buffet_1_bigstring
 
-let test_9 =
+let test_set =
+  [ test_buffet_0_bytes_set; test_buffet_0_bigstring_set
+  ; test_buffet_1_bytes_set; test_buffet_1_bigstring_set ]
+
+let test_buffet_0_bytes_unsafe_set =
   Test.make_indexed ~name:"Buffet0.Bytes.unsafe_set" ~args:[1; 10; 100]
     unsafe_set_buffet_0_bytes
 
-let test_10 =
+let test_buffet_0_bigstring_unsafe_set =
   Test.make_indexed ~name:"Buffet0.Bigstring.unsafe_set" ~args:[1; 10; 100]
     unsafe_set_buffet_0_bigstring
 
-let test_11 =
+let test_buffet_1_bytes_unsafe_set =
   Test.make_indexed ~name:"Buffet1.Bytes.unsafe_set" ~args:[1; 10; 100]
     unsafe_set_buffet_1_bytes
 
-let test_12 =
+let test_buffet_1_bigstring_unsafe_set =
   Test.make_indexed ~name:"Buffet1.Bigstring.unsafe_set" ~args:[1; 10; 100]
     unsafe_set_buffet_1_bigstring
+
+let test_unsafe_set =
+  [ test_buffet_0_bytes_unsafe_set; test_buffet_0_bigstring_unsafe_set
+  ; test_buffet_1_bytes_unsafe_set; test_buffet_1_bigstring_unsafe_set ]
 
 (** TESTS **)
 
@@ -240,8 +268,13 @@ let () =
       [minor_allocated; major_allocated; monotonic_clock; realtime_clock]
   in
   let tests =
-    [ test_0; test_1; test_2; test_3; test_4; test_5; test_6; test_7; test_8
-    ; test_9; test_10; test_11; test_12 ]
+    match Sys.argv with
+    | [|_|] -> []
+    | [|_; "create"|] -> test_create
+    | [|_; "set"|] -> test_set
+    | [|_; "unsafe_set"|] -> test_unsafe_set
+    | [|_; "all"|] -> test_create @ test_set @ test_unsafe_set
+    | _ -> Fmt.invalid_arg "%s {create|set|unsafe_set|all}" Sys.argv.(1)
   in
   let measure_and_analyze test =
     let results =
