@@ -74,10 +74,11 @@ let unsafe_set : type k rd async. ((rd, t, async) c, k) access -> (k, char) set
   | Bigstring -> Bigstring.unsafe_set
 
 let get : type k wr async. ((t, wr, async) c, k) access -> (k, char) get =
-  function
-  | Bytes -> Bytes.get
-  | String -> String.get
-  | Bigstring -> Bigstring.get
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get buf pos
+  | String -> buf.[pos]
+  | Bigstring -> Bigstring.get buf pos
 
 let set : type k rd async. ((rd, t, async) c, k) access -> (k, char) set =
   function
