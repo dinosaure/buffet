@@ -19,7 +19,7 @@ external swap32 : int32 -> int32 = "%bswap_int32"
 external swap64 : int64 -> int64 = "%bswap_int64"
 
 module type S0 = sig
-  type 'a t constraint 'a = [< capabilities]
+  type 'a t
 
   val unsafe_copy : (([> rd] as 'a) t, 'a t) copy
   val copy : (([> rd] as 'a) t, 'a t) copy
@@ -52,7 +52,7 @@ module type S0 = sig
 end
 
 module type S1 = sig
-  type 'a t constraint 'a = [< capabilities]
+  type 'a t
 
   val unsafe_set : ([> wr] t, char) set
   val set : ([> wr] t, char) set
@@ -134,7 +134,7 @@ module GE (X : X0) = struct
 end
 
 module Bytes : sig
-  type 'a t = private bytes constraint 'a = [< capabilities]
+  type 'a t = private bytes
 
   val create : int -> [rd | wr] t
   val make : int -> char -> [rd | wr] t
@@ -143,7 +143,7 @@ module Bytes : sig
   include S0 with type 'a t := 'a t
   include S1 with type 'a t := 'a t
 end = struct
-  type 'a t = bytes constraint 'a = [< capabilities]
+  type 'a t = bytes
 
   external length : _ t -> int = "%bytes_length"
   external unsafe_get : [> rd] t -> int -> char = "%bytes_unsafe_get"
@@ -327,14 +327,14 @@ end = struct
 end
 
 module String : sig
-  type 'a t = string constraint 'a = [< capabilities]
+  type 'a t = string
 
-  val make : int -> char -> [rd | wr] t
-  val empty : [rd | wr] t
+  val make : int -> char -> rd t
+  val empty : rd t
 
   include S0 with type 'a t := 'a t
 end = struct
-  type 'a t = string constraint 'a = [< capabilities]
+  type 'a t = string
 
   external length : _ t -> int = "%string_length"
   external unsafe_get : [> rd] t -> int -> char = "%string_unsafe_get"
@@ -426,7 +426,7 @@ end = struct
 end
 
 module Bigstring : sig
-  type 'a t = private Bigstringaf.t constraint 'a = [< capabilities]
+  type 'a t = private Bigstringaf.t
 
   val create : int -> [rd | wr | async] t
   val make : int -> char -> [rd | wr | async] t
@@ -440,7 +440,7 @@ end = struct
 
   (* XXX(dinosaure): (;_;) *)
 
-  type 'a t = Bigstringaf.t constraint 'a = [< capabilities]
+  type 'a t = Bigstringaf.t
 
   external unsafe_fill : [> wr] t -> char -> unit = "caml_ba_fill"
 

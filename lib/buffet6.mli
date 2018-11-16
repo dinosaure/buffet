@@ -7,7 +7,7 @@ type aligned = [`Aligned]
 type capabilities = [rd | wr | async | aligned]
 
 module type S0 = sig
-  type 'a t constraint 'a = [< capabilities]
+  type 'a t
 
   val unsafe_copy : (([> rd] as 'a) t, 'a t) copy
   val copy : (([> rd] as 'a) t, 'a t) copy
@@ -40,7 +40,7 @@ module type S0 = sig
 end
 
 module type S1 = sig
-  type 'a t constraint 'a = [< capabilities]
+  type 'a t
 
   val unsafe_set : ([> wr] t, char) set
   val set : ([> wr] t, char) set
@@ -61,7 +61,7 @@ module type S1 = sig
 end
 
 module Bytes : sig
-  type 'a t = private bytes constraint 'a = [< capabilities]
+  type 'a t = private bytes
 
   val create : int -> [rd | wr] t
   val make : int -> char -> [rd | wr] t
@@ -72,10 +72,10 @@ module Bytes : sig
 end
 
 module String : sig
-  type 'a t = private string constraint 'a = [< capabilities]
+  type 'a t = private string
 
-  val make : int -> char -> [rd | wr] t
-  val empty : [rd | wr] t
+  val make : int -> char -> rd t
+  val empty : rd t
 
   include S0 with type 'a t := 'a t
 end
@@ -84,7 +84,6 @@ module Bigstring : sig
   type 'a t =
     private
     (char, Bigarray.int8_unsigned_elt, Bigarray.c_layout) Bigarray.Array1.t
-    constraint 'a = [< capabilities]
 
   val create : int -> [rd | wr | async] t
   val make : int -> char -> [rd | wr | async] t

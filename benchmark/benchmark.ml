@@ -128,6 +128,18 @@ let set_buffet_6_bigstring len =
   let pos = Random.int len in
   Staged.stage (fun () -> Buffet.Buffet6.Bigstring.set buf pos '\042')
 
+let set_buffet_7_bytes len =
+  let buf = Buffet.Buffet6.Bytes.create len in
+  let buf = Buffet.Buffet7.Injection.bytes buf in
+  let pos = Random.int len in
+  Staged.stage (fun () -> Buffet.Buffet7.(set bytes buf pos '\042'))
+
+let set_buffet_7_bigstring len =
+  let buf = Buffet.Buffet6.Bigstring.create len in
+  let buf = Buffet.Buffet7.Injection.bigstring buf in
+  let pos = Random.int len in
+  Staged.stage (fun () -> Buffet.Buffet7.(set bigstring buf pos '\042'))
+
 let test_buffet_0_bytes_create =
   Test.make_indexed ~name:"Buffet0.Bytes.create"
     ~args:[0; 1; 10; 100; 500; 1000] create_buffet_0_bytes
@@ -195,10 +207,19 @@ let test_buffet_6_bigstring_set =
   Test.make_indexed ~name:"Buffet6.Bigstring.set" ~args:[1; 10; 100]
     set_buffet_6_bigstring
 
+let test_buffet_7_bytes_set =
+  Test.make_indexed ~name:"Buffet7.Bytes.set" ~args:[1; 10; 100]
+    set_buffet_7_bytes
+
+let test_buffet_7_bigstring_set =
+  Test.make_indexed ~name:"Buffet7.Bigstring.set" ~args:[1; 10; 100]
+    set_buffet_7_bigstring
+
 let test_set =
   [ test_buffet_0_bytes_set; test_buffet_0_bigstring_set
   ; test_buffet_1_bytes_set; test_buffet_1_bigstring_set
-  ; test_buffet_6_bytes_set; test_buffet_6_bigstring_set ]
+  ; test_buffet_6_bytes_set; test_buffet_6_bigstring_set
+  ; test_buffet_7_bytes_set; test_buffet_7_bigstring_set ]
 
 let test_buffet_0_bytes_unsafe_set =
   Test.make_indexed ~name:"Buffet0.Bytes.unsafe_set" ~args:[1; 10; 100]
