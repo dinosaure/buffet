@@ -152,6 +152,50 @@ let unsafe_set_buffet_7_bigstring len =
   let pos = Random.int len in
   Staged.stage (fun () -> Buffet.Buffet7.(unsafe_set bigstring buf pos '\042'))
 
+let sum_buffet_0 ~create ~get len =
+  let buf = create len in
+  let sum () =
+    let r = ref 0 in
+    for i = 0 to len - 1 do
+      r := Char.code (get buf i) + !r
+    done ;
+    !r
+  in
+  Staged.stage sum
+
+let sum_buffet_1 witness len =
+  let buf = Buffet.Buffet1.create witness len in
+  let sum () =
+    let r = ref 0 in
+    for i = 0 to len - 1 do
+      r := Char.code (Buffet.Buffet1.get witness buf i) + !r
+    done ;
+    !r
+  in
+  Staged.stage sum
+
+let sum_buffet_2 witness len =
+  let buf = Buffet.Buffet2.create witness len in
+  let sum () =
+    let r = ref 0 in
+    for i = 0 to len - 1 do
+      r := Char.code (Buffet.Buffet2.get witness buf i) + !r
+    done ;
+    !r
+  in
+  Staged.stage sum
+
+let sum_buffet_8 witness len =
+  let buf = Buffet.Buffet8.create witness len in
+  let sum () =
+    let r = ref 0 in
+    for i = 0 to len - 1 do
+      r := Char.code (Buffet.Buffet8.get witness buf i) + !r
+    done ;
+    !r
+  in
+  Staged.stage sum
+
 let test_buffet_0_bytes_create =
   Test.make_indexed ~name:"Buffet0.Bytes.create"
     ~args:[0; 1; 10; 100; 500; 1000] create_buffet_0_bytes
@@ -262,6 +306,46 @@ let test_unsafe_set =
   ; test_buffet_1_bytes_unsafe_set; test_buffet_1_bigstring_unsafe_set
   ; test_buffet_7_bytes_unsafe_set; test_buffet_7_bigstring_unsafe_set ]
 
+let test_sum_buffet_0_bytes =
+  Test.make_indexed ~name:"Buffet0.Bytes.sum" ~args:[0; 1; 100; 500; 1000]
+    (sum_buffet_0 ~create:Buffet.Buffet0.Bytes.create
+       ~get:Buffet.Buffet0.Bytes.get)
+
+let test_sum_buffet_0_bigstring =
+  Test.make_indexed ~name:"Buffet0.Bigstring.sum" ~args:[0; 1; 100; 500; 1000]
+    (sum_buffet_0 ~create:Buffet.Buffet0.Bigstring.create
+       ~get:Buffet.Buffet0.Bigstring.get)
+
+let test_sum_buffet_1_bytes =
+  Test.make_indexed ~name:"Buffet1.Bytes.sum" ~args:[0; 1; 100; 500; 1000]
+    (sum_buffet_1 Buffet.Buffet1.bytes)
+
+let test_sum_buffet_1_bigstring =
+  Test.make_indexed ~name:"Buffet1.Bigstring.sum" ~args:[0; 1; 100; 500; 1000]
+    (sum_buffet_1 Buffet.Buffet1.bigstring)
+
+let test_sum_buffet_2_bytes =
+  Test.make_indexed ~name:"Buffet2.Bytes.sum" ~args:[0; 1; 100; 500; 1000]
+    (sum_buffet_2 Buffet.Buffet2.bytes)
+
+let test_sum_buffet_2_bigstring =
+  Test.make_indexed ~name:"Buffet2.Bigstring.sum" ~args:[0; 1; 100; 500; 1000]
+    (sum_buffet_2 Buffet.Buffet2.bigstring)
+
+let test_sum_buffet_8_bytes =
+  Test.make_indexed ~name:"Buffet8.Bytes.sum" ~args:[0; 1; 100; 500; 1000]
+    (sum_buffet_8 Buffet.Buffet8.bytes)
+
+let test_sum_buffet_8_bigstring =
+  Test.make_indexed ~name:"Buffet8.Bigstring.sum" ~args:[0; 1; 100; 500; 1000]
+    (sum_buffet_8 Buffet.Buffet8.bigstring)
+
+let test_sum =
+  [ test_sum_buffet_0_bytes; test_sum_buffet_0_bigstring
+  ; test_sum_buffet_1_bytes; test_sum_buffet_1_bigstring
+  ; test_sum_buffet_2_bytes; test_sum_buffet_2_bigstring
+  ; test_sum_buffet_8_bytes; test_sum_buffet_8_bigstring ]
+
 (** TESTS **)
 
 let zip l1 l2 =
@@ -349,7 +433,8 @@ let () =
     | [|_; "create"|] -> test_create
     | [|_; "set"|] -> test_set
     | [|_; "unsafe_set"|] -> test_unsafe_set
-    | [|_; "all"|] -> test_create @ test_set @ test_unsafe_set
+    | [|_; "sum"|] -> test_sum
+    | [|_; "all"|] -> test_create @ test_set @ test_unsafe_set @ test_sum
     | _ -> Fmt.invalid_arg "%s {create|set|unsafe_set|all}" Sys.argv.(1)
   in
   let measure_and_analyze test =
