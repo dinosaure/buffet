@@ -24,13 +24,13 @@ end
 module GE (X : X0) = struct
   open X
 
-  let unsafe_get_int16_le t off =
-    if Sys.big_endian then swap16 (unsafe_get_int16 t off)
-    else unsafe_get_int16 t off
+  let unsafe_get_int16_le =
+    if Sys.big_endian then fun t off -> swap16 (unsafe_get_int16 t off)
+    else fun t off -> unsafe_get_int16 t off
 
-  let unsafe_get_int16_be t off =
-    if Sys.big_endian then unsafe_get_int16 t off
-    else swap16 (unsafe_get_int16 t off)
+  let unsafe_get_int16_be =
+    if Sys.big_endian then fun t off -> unsafe_get_int16 t off
+    else fun t off -> swap16 (unsafe_get_int16 t off)
 
   let get_int16_le t off =
     if off < 0 || off > length t - 2 then invalid_bounds off 2 (length t)
@@ -40,13 +40,13 @@ module GE (X : X0) = struct
     if off < 0 || off > length t - 2 then invalid_bounds off 2 (length t)
     else unsafe_get_int16_be t off
 
-  let unsafe_get_int32_le t off =
-    if Sys.big_endian then swap32 (unsafe_get_int32 t off)
-    else unsafe_get_int32 t off
+  let unsafe_get_int32_le =
+    if Sys.big_endian then fun t off -> swap32 (unsafe_get_int32 t off)
+    else fun t off -> unsafe_get_int32 t off
 
-  let unsafe_get_int32_be t off =
-    if Sys.big_endian then unsafe_get_int32 t off
-    else swap32 (unsafe_get_int32 t off)
+  let unsafe_get_int32_be =
+    if Sys.big_endian then fun t off -> unsafe_get_int32 t off
+    else fun t off -> swap32 (unsafe_get_int32 t off)
 
   let get_int32_le t off =
     if off < 0 || off > length t - 4 then invalid_bounds off 4 (length t)
@@ -56,13 +56,13 @@ module GE (X : X0) = struct
     if off < 0 || off > length t - 4 then invalid_bounds off 4 (length t)
     else unsafe_get_int32_be t off
 
-  let unsafe_get_int64_le t off =
-    if Sys.big_endian then swap64 (unsafe_get_int64 t off)
-    else unsafe_get_int64 t off
+  let unsafe_get_int64_le =
+    if Sys.big_endian then fun t off -> swap64 (unsafe_get_int64 t off)
+    else fun t off -> unsafe_get_int64 t off
 
-  let unsafe_get_int64_be t off =
-    if Sys.big_endian then unsafe_get_int64 t off
-    else swap64 (unsafe_get_int64 t off)
+  let unsafe_get_int64_be =
+    if Sys.big_endian then fun t off -> unsafe_get_int64 t off
+    else fun t off -> swap64 (unsafe_get_int64 t off)
 
   let get_int64_le t off =
     if off < 0 || off > length t - 8 then invalid_bounds off 8 (length t)
@@ -185,13 +185,13 @@ end = struct
     bytes -> int -> int64 -> unit
     = "%caml_string_set64u"
 
-  let unsafe_set_int16_le t off v =
-    if Sys.big_endian then unsafe_set_int16 t off (swap16 v)
-    else unsafe_set_int16 t off v
+  let unsafe_set_int16_le =
+    if Sys.big_endian then fun t off v -> unsafe_set_int16 t off (swap16 v)
+    else fun t off v -> unsafe_set_int16 t off v
 
-  let unsafe_set_int16_be t off v =
-    if Sys.big_endian then unsafe_set_int16 t off v
-    else unsafe_set_int16 t off v
+  let unsafe_set_int16_be =
+    if Sys.big_endian then fun t off v -> unsafe_set_int16 t off v
+    else fun t off v -> unsafe_set_int16 t off v
 
   let set_int16_le t off v =
     if off < 0 || off > length t - 2 then invalid_bounds off 2 (length t)
@@ -201,13 +201,13 @@ end = struct
     if off < 0 || off > length t - 2 then invalid_bounds off 2 (length t)
     else unsafe_set_int16_be t off v
 
-  let unsafe_set_int32_le t off v =
-    if Sys.big_endian then unsafe_set_int32 t off (swap32 v)
-    else unsafe_set_int32 t off v
+  let unsafe_set_int32_le =
+    if Sys.big_endian then fun t off v -> unsafe_set_int32 t off (swap32 v)
+    else fun t off v -> unsafe_set_int32 t off v
 
-  let unsafe_set_int32_be t off v =
-    if Sys.big_endian then unsafe_set_int32 t off v
-    else unsafe_set_int32 t off (swap32 v)
+  let unsafe_set_int32_be =
+    if Sys.big_endian then fun t off v -> unsafe_set_int32 t off v
+    else fun t off v -> unsafe_set_int32 t off (swap32 v)
 
   let set_int32_le t off v =
     if off < 0 || off > length t - 4 then invalid_bounds off 4 (length t)
@@ -217,13 +217,13 @@ end = struct
     if off < 0 || off > length t - 4 then invalid_bounds off 4 (length t)
     else unsafe_set_int32_be t off v
 
-  let unsafe_set_int64_le t off v =
-    if Sys.big_endian then unsafe_set_int64 t off (swap64 v)
-    else unsafe_set_int64 t off v
+  let unsafe_set_int64_le =
+    if Sys.big_endian then fun t off v -> unsafe_set_int64 t off (swap64 v)
+    else fun t off v -> unsafe_set_int64 t off v
 
-  let unsafe_set_int64_be t off v =
-    if Sys.big_endian then unsafe_set_int64 t off v
-    else unsafe_set_int64 t off (swap64 v)
+  let unsafe_set_int64_be =
+    if Sys.big_endian then fun t off v -> unsafe_set_int64 t off v
+    else fun t off v -> unsafe_set_int64 t off (swap64 v)
 
   let set_int64_le t off v =
     if off < 0 || off > length t - 8 then invalid_bounds off 8 (length t)
