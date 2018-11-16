@@ -6,3 +6,4 @@ module Buffet4 = Buffet4
 module Buffet6 = Buffet6
 module Buffet7 = Buffet7
 module Buffet8 = Buffet8
+module Buffet9 = Buffet9

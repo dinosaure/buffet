@@ -29,3 +29,10 @@ let get : type k. ([> rd], k) witness -> k -> int -> char =
   | Bytes -> Bytes.get buf pos
   | String -> buf.[pos]
   | Bigstring -> Bigstring.get buf pos
+
+let unsafe_get : type k. ([> rd], k) witness -> k -> int -> char =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.unsafe_get buf pos
+  | String -> String.unsafe_get buf pos
+  | Bigstring -> Bigstring.unsafe_get buf pos
