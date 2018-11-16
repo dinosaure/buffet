@@ -185,6 +185,17 @@ let sum_buffet_2 witness len =
   in
   Staged.stage sum
 
+let sum_buffet_7 witness len =
+  let buf = Buffet.Buffet7.create witness len in
+  let sum () =
+    let r = ref 0 in
+    for i = 0 to len - 1 do
+      r := Char.code (Buffet.Buffet7.get witness buf i) + !r
+    done ;
+    !r
+  in
+  Staged.stage sum
+
 let sum_buffet_8 witness len =
   let buf = Buffet.Buffet8.create witness len in
   let sum () =
@@ -332,6 +343,14 @@ let test_sum_buffet_2_bigstring =
   Test.make_indexed ~name:"Buffet2.Bigstring.sum" ~args:[0; 1; 100; 500; 1000]
     (sum_buffet_2 Buffet.Buffet2.bigstring)
 
+let test_sum_buffet_7_bytes =
+  Test.make_indexed ~name:"Buffet7.Bytes.sum" ~args:[0; 1; 100; 500; 1000]
+    (sum_buffet_7 Buffet.Buffet7.bytes)
+
+let test_sum_buffet_7_bigstring =
+  Test.make_indexed ~name:"Buffet7.Bigstring.sum" ~args:[0; 1; 100; 500; 1000]
+    (sum_buffet_7 Buffet.Buffet7.bigstring)
+
 let test_sum_buffet_8_bytes =
   Test.make_indexed ~name:"Buffet8.Bytes.sum" ~args:[0; 1; 100; 500; 1000]
     (sum_buffet_8 Buffet.Buffet8.bytes)
@@ -344,6 +363,7 @@ let test_sum =
   [ test_sum_buffet_0_bytes; test_sum_buffet_0_bigstring
   ; test_sum_buffet_1_bytes; test_sum_buffet_1_bigstring
   ; test_sum_buffet_2_bytes; test_sum_buffet_2_bigstring
+  ; test_sum_buffet_7_bytes; test_sum_buffet_7_bigstring
   ; test_sum_buffet_8_bytes; test_sum_buffet_8_bigstring ]
 
 (** TESTS **)

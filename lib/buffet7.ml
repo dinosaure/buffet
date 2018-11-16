@@ -35,6 +35,13 @@ module Injection = struct
   let bigstring : 'a Bigstring.t -> ('a, bigstring) t = H.Bigstring.inj
 end
 
+let create : type k. ('a, k) witness -> int -> ('a, k) t =
+ fun witness len ->
+  match witness with
+  | Bytes -> Injection.bytes (Bytes.create len)
+  | Bigstring -> Injection.bigstring (Bigstring.create len)
+  | String -> invalid_arg "Impossible to create a string"
+
 let get : type k. ([> rd], k) witness -> ([> rd], k) t -> int -> char =
  fun witness buf off ->
   match witness with
