@@ -21,32 +21,58 @@ module type X0 = sig
   external unsafe_get_int64 : t -> int -> int64 = "%caml_string_get64u"
 end
 
+(* XXX(dinosaure): de-functorize. *)
 module GE (X : X0) = struct
   open X
+  open Integer
 
-  let unsafe_get_int16_le =
-    if Sys.big_endian then fun t off -> swap16 (unsafe_get_int16 t off)
-    else fun t off -> unsafe_get_int16 t off
+  let unsafe_get_uint16_le =
+    if Sys.big_endian then fun t off ->
+      unsafe_to_uint16_le (swap16 (unsafe_get_int16 t off))
+    else fun t off -> unsafe_to_uint16_le (unsafe_get_int16 t off)
 
-  let unsafe_get_int16_be =
-    if Sys.big_endian then fun t off -> unsafe_get_int16 t off
-    else fun t off -> swap16 (unsafe_get_int16 t off)
+  let unsafe_get_uint16_be =
+    if Sys.big_endian then fun t off ->
+      unsafe_to_uint16_be (unsafe_get_int16 t off)
+    else fun t off -> unsafe_to_uint16_be (swap16 (unsafe_get_int16 t off))
+
+  let get_uint16_le t off =
+    if off < 0 || off > length t - 2 then invalid_bounds off 2 (length t) ;
+    unsafe_get_uint16_le t off
+
+  let get_uint16_be t off =
+    if off < 0 || off > length t - 2 then invalid_bounds off 2 (length t) ;
+    unsafe_get_uint16_be t off
+
+  let unsafe_get_int16_le t off =
+    unsafe_to_int16_le
+      ( ((unsafe_get_uint16_le t off :> int) lsl (Sys.int_size - 16))
+      asr (Sys.int_size - 16) )
+
+  let unsafe_get_int16_be t off =
+    unsafe_to_int16_be
+      ( ((unsafe_get_uint16_be t off :> int) lsl (Sys.int_size - 16))
+      asr (Sys.int_size - 16) )
 
   let get_int16_le t off =
-    if off < 0 || off > length t - 2 then invalid_bounds off 2 (length t)
-    else unsafe_get_int16_le t off
+    unsafe_to_int16_le
+      ( ((get_uint16_le t off :> int) lsl (Sys.int_size - 16))
+      asr (Sys.int_size - 16) )
 
   let get_int16_be t off =
-    if off < 0 || off > length t - 2 then invalid_bounds off 2 (length t)
-    else unsafe_get_int16_be t off
+    unsafe_to_int16_be
+      ( ((get_uint16_be t off :> int) lsl (Sys.int_size - 16))
+      asr (Sys.int_size - 16) )
 
   let unsafe_get_int32_le =
-    if Sys.big_endian then fun t off -> swap32 (unsafe_get_int32 t off)
-    else fun t off -> unsafe_get_int32 t off
+    if Sys.big_endian then fun t off ->
+      unsafe_to_int32_le (swap32 (unsafe_get_int32 t off))
+    else fun t off -> unsafe_to_int32_le (unsafe_get_int32 t off)
 
   let unsafe_get_int32_be =
-    if Sys.big_endian then fun t off -> unsafe_get_int32 t off
-    else fun t off -> swap32 (unsafe_get_int32 t off)
+    if Sys.big_endian then fun t off ->
+      unsafe_to_int32_be (unsafe_get_int32 t off)
+    else fun t off -> unsafe_to_int32_be (swap32 (unsafe_get_int32 t off))
 
   let get_int32_le t off =
     if off < 0 || off > length t - 4 then invalid_bounds off 4 (length t)
@@ -57,12 +83,14 @@ module GE (X : X0) = struct
     else unsafe_get_int32_be t off
 
   let unsafe_get_int64_le =
-    if Sys.big_endian then fun t off -> swap64 (unsafe_get_int64 t off)
-    else fun t off -> unsafe_get_int64 t off
+    if Sys.big_endian then fun t off ->
+      unsafe_to_int64_le (swap64 (unsafe_get_int64 t off))
+    else fun t off -> unsafe_to_int64_le (unsafe_get_int64 t off)
 
   let unsafe_get_int64_be =
-    if Sys.big_endian then fun t off -> unsafe_get_int64 t off
-    else fun t off -> swap64 (unsafe_get_int64 t off)
+    if Sys.big_endian then fun t off ->
+      unsafe_to_int64_be (unsafe_get_int64 t off)
+    else fun t off -> unsafe_to_int64_be (swap64 (unsafe_get_int64 t off))
 
   let get_int64_le t off =
     if off < 0 || off > length t - 8 then invalid_bounds off 8 (length t)
@@ -71,6 +99,37 @@ module GE (X : X0) = struct
   let get_int64_be t off =
     if off < 0 || off > length t - 8 then invalid_bounds off 8 (length t)
     else unsafe_get_int64_be t off
+end
+
+module PP = struct
+  let pf = Format.fprintf
+  let using f pp ppf x = pp ppf (f x)
+  let char = Format.pp_print_char
+  let pp_chr = using (function '\032' .. '\126' as x -> x | _ -> '.') char
+
+  let pp : type buffer.
+      get:(buffer -> int -> char) -> length:(buffer -> int) -> buffer fmt =
+   fun ~get ~length ppf b ->
+    let l = length b in
+    for i = 0 to l / 16 do
+      pf ppf "%08x: " (i * 16) ;
+      let j = ref 0 in
+      while !j < 16 do
+        if (i * 16) + !j < l then
+          pf ppf "%02x" (Char.code @@ get b ((i * 16) + !j))
+        else pf ppf "  " ;
+        if !j mod 2 <> 0 then pf ppf " " ;
+        incr j
+      done ;
+      pf ppf "  " ;
+      j := 0 ;
+      while !j < 16 do
+        if (i * 16) + !j < l then pf ppf "%a" pp_chr (get b ((i * 16) + !j))
+        else pf ppf " " ;
+        incr j
+      done ;
+      pf ppf "@\n"
+    done
 end
 
 module Bytes : sig
@@ -169,9 +228,13 @@ end = struct
 
   let unsafe_sub_equal ~a ~b ak bk = unsafe_sub_compare ~a ~b ak bk = 0
   let sub_equal ~a ~b ak bk = sub_compare ~a ~b ak bk = 0
-  let pp _ppf _x = ()
-  let unsafe_sub_pp ~off:_ ~len:_ _ppf _x = ()
-  let sub_pp ~off:_ ~len:_ _ppf _x = ()
+  let pp = PP.pp ~get:unsafe_get ~length
+
+  let unsafe_sub_pp ~off ~len ppf x =
+    PP.pp ~get:unsafe_get ~length ppf (unsafe_sub ~off ~len x)
+
+  let sub_pp ~off ~len ppf x =
+    PP.pp ~get:unsafe_get ~length ppf (sub ~off ~len x)
 
   external unsafe_set_int16 :
     bytes -> int -> int -> unit
@@ -186,12 +249,16 @@ end = struct
     = "%caml_string_set64u"
 
   let unsafe_set_int16_le =
-    if Sys.big_endian then fun t off v -> unsafe_set_int16 t off (swap16 v)
-    else fun t off v -> unsafe_set_int16 t off v
+    if Sys.big_endian then fun t off (v : Integer.le Integer.int16) ->
+      unsafe_set_int16 t off (swap16 (v :> int))
+    else fun t off (v : Integer.le Integer.int16) ->
+      unsafe_set_int16 t off (v :> int)
 
   let unsafe_set_int16_be =
-    if Sys.big_endian then fun t off v -> unsafe_set_int16 t off v
-    else fun t off v -> unsafe_set_int16 t off v
+    if Sys.big_endian then fun t off (v : Integer.be Integer.int16) ->
+      unsafe_set_int16 t off (v :> int)
+    else fun t off (v : Integer.be Integer.int16) ->
+      unsafe_set_int16 t off (v :> int)
 
   let set_int16_le t off v =
     if off < 0 || off > length t - 2 then invalid_bounds off 2 (length t)
@@ -202,12 +269,16 @@ end = struct
     else unsafe_set_int16_be t off v
 
   let unsafe_set_int32_le =
-    if Sys.big_endian then fun t off v -> unsafe_set_int32 t off (swap32 v)
-    else fun t off v -> unsafe_set_int32 t off v
+    if Sys.big_endian then fun t off (v : Integer.le Integer.int32) ->
+      unsafe_set_int32 t off (swap32 (v :> int32))
+    else fun t off (v : Integer.le Integer.int32) ->
+      unsafe_set_int32 t off (v :> int32)
 
   let unsafe_set_int32_be =
-    if Sys.big_endian then fun t off v -> unsafe_set_int32 t off v
-    else fun t off v -> unsafe_set_int32 t off (swap32 v)
+    if Sys.big_endian then fun t off (v : Integer.be Integer.int32) ->
+      unsafe_set_int32 t off (v :> int32)
+    else fun t off (v : Integer.be Integer.int32) ->
+      unsafe_set_int32 t off (swap32 (v :> int32))
 
   let set_int32_le t off v =
     if off < 0 || off > length t - 4 then invalid_bounds off 4 (length t)
@@ -218,12 +289,16 @@ end = struct
     else unsafe_set_int32_be t off v
 
   let unsafe_set_int64_le =
-    if Sys.big_endian then fun t off v -> unsafe_set_int64 t off (swap64 v)
-    else fun t off v -> unsafe_set_int64 t off v
+    if Sys.big_endian then fun t off (v : Integer.le Integer.int64) ->
+      unsafe_set_int64 t off (swap64 (v :> int64))
+    else fun t off (v : Integer.le Integer.int64) ->
+      unsafe_set_int64 t off (v :> int64)
 
   let unsafe_set_int64_be =
-    if Sys.big_endian then fun t off v -> unsafe_set_int64 t off v
-    else fun t off v -> unsafe_set_int64 t off (swap64 v)
+    if Sys.big_endian then fun t off (v : Integer.be Integer.int64) ->
+      unsafe_set_int64 t off (v :> int64)
+    else fun t off (v : Integer.be Integer.int64) ->
+      unsafe_set_int64 t off (swap64 (v :> int64))
 
   let set_int64_le t off v =
     if off < 0 || off > length t - 8 then invalid_bounds off 8 (length t)
@@ -231,7 +306,7 @@ end = struct
 
   let set_int64_be t off v =
     if off < 0 || off > length t - 8 then invalid_bounds off 8 (length t)
-    else unsafe_set_int64_le t off v
+    else unsafe_set_int64_be t off v
 
   let unsafe_blit src ~src_off dst ~dst_off ~len =
     unsafe_blit src src_off dst dst_off len
@@ -335,9 +410,13 @@ end = struct
 
   let unsafe_sub_equal ~a ~b ak bk = unsafe_sub_compare ~a ~b ak bk = 0
   let sub_equal ~a ~b ak bk = sub_compare ~a ~b ak bk = 0
-  let pp _ppf _x = ()
-  let unsafe_sub_pp ~off:_ ~len:_ _ppf _x = ()
-  let sub_pp ~off:_ ~len:_ _ppf _x = ()
+  let pp = PP.pp ~get:unsafe_get ~length
+
+  let unsafe_sub_pp ~off ~len ppf x =
+    PP.pp ~get:unsafe_get ~length ppf (unsafe_sub ~off ~len x)
+
+  let sub_pp ~off ~len ppf x =
+    PP.pp ~get:unsafe_get ~length ppf (sub ~off ~len x)
 end
 
 module Bigstring : sig
@@ -356,7 +435,6 @@ end = struct
 
   let unsafe_sub t ~off ~len = sub t ~off ~len
   let unsafe_copy t ~off ~len = sub t ~off ~len
-  let pp _ppf _x = ()
 
   external unsafe_get_compare : t -> int -> int = "%caml_ba_unsafe_ref_1"
 
@@ -376,6 +454,74 @@ end = struct
         0
       with Break -> !rs
 
+  open Integer
+
+  let unsafe_get_uint16_le buf pos =
+    unsafe_to_uint16_le (unsafe_get_int16_le buf pos)
+
+  let unsafe_get_uint16_be buf pos =
+    unsafe_to_uint16_be (unsafe_get_int16_be buf pos)
+
+  let get_uint16_le buf pos = unsafe_to_uint16_le (get_int16_le buf pos)
+  let get_uint16_be buf pos = unsafe_to_uint16_be (get_int16_be buf pos)
+
+  let unsafe_get_int16_le buf pos =
+    unsafe_to_int16_le (unsafe_get_int16_sign_extended_le buf pos)
+
+  let unsafe_get_int16_be buf pos =
+    unsafe_to_int16_be (unsafe_get_int16_sign_extended_be buf pos)
+
+  let get_int16_le buf pos =
+    unsafe_to_int16_le (get_int16_sign_extended_le buf pos)
+
+  let get_int16_be buf pos =
+    unsafe_to_int16_be (get_int16_sign_extended_be buf pos)
+
+  let unsafe_get_int32_le buf pos =
+    unsafe_to_int32_le (unsafe_get_int32_le buf pos)
+
+  let unsafe_get_int32_be buf pos =
+    unsafe_to_int32_be (unsafe_get_int32_be buf pos)
+
+  let get_int32_le buf pos = unsafe_to_int32_le (get_int32_le buf pos)
+  let get_int32_be buf pos = unsafe_to_int32_be (get_int32_be buf pos)
+
+  let unsafe_get_int64_le buf pos =
+    unsafe_to_int64_le (unsafe_get_int64_le buf pos)
+
+  let unsafe_get_int64_be buf pos =
+    unsafe_to_int64_be (unsafe_get_int64_be buf pos)
+
+  let get_int64_le buf pos = unsafe_to_int64_le (get_int64_le buf pos)
+  let get_int64_be buf pos = unsafe_to_int64_be (get_int64_be buf pos)
+
+  let unsafe_set_int16_le buf pos (x : le int16) =
+    unsafe_set_int16_le buf pos (x :> int)
+
+  let unsafe_set_int16_be buf pos (x : be int16) =
+    unsafe_set_int16_be buf pos (x :> int)
+
+  let set_int16_le buf pos (x : le int16) = set_int16_le buf pos (x :> int)
+  let set_int16_be buf pos (x : be int16) = set_int16_be buf pos (x :> int)
+
+  let unsafe_set_int32_le buf pos (x : le int32) =
+    unsafe_set_int32_le buf pos (x :> Int32.t)
+
+  let unsafe_set_int32_be buf pos (x : be int32) =
+    unsafe_set_int32_be buf pos (x :> Int32.t)
+
+  let set_int32_le buf pos (x : le int32) = set_int32_le buf pos (x :> Int32.t)
+  let set_int32_be buf pos (x : be int32) = set_int32_be buf pos (x :> Int32.t)
+
+  let unsafe_set_int64_le buf pos (x : le int64) =
+    unsafe_set_int64_le buf pos (x :> Int64.t)
+
+  let unsafe_set_int64_be buf pos (x : be int64) =
+    unsafe_set_int64_be buf pos (x :> Int64.t)
+
+  let set_int64_le buf pos (x : le int64) = set_int64_le buf pos (x :> Int64.t)
+  let set_int64_be buf pos (x : be int64) = set_int64_be buf pos (x :> Int64.t)
+
   let unsafe_sub_compare ~a ~b ak bk =
     compare
       (unsafe_sub ~off:a.off ~len:a.len ak)
@@ -387,6 +533,11 @@ end = struct
   let equal a b = compare a b = 0
   let unsafe_sub_equal ~a ~b ak bk = unsafe_sub_compare ~a ~b ak bk = 0
   let sub_equal ~a ~b ak bk = sub_compare ~a ~b ak bk = 0
-  let unsafe_sub_pp ~off:_ ~len:_ _ppf _x = ()
-  let sub_pp ~off:_ ~len:_ _ppf _x = ()
+  let pp = PP.pp ~get:unsafe_get ~length
+
+  let unsafe_sub_pp ~off ~len ppf x =
+    PP.pp ~get:unsafe_get ~length ppf (unsafe_sub ~off ~len x)
+
+  let sub_pp ~off ~len ppf x =
+    PP.pp ~get:unsafe_get ~length ppf (sub ~off ~len x)
 end

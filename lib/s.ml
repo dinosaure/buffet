@@ -13,6 +13,8 @@ type 'k equal = 'k -> 'k -> bool
 type 'k fmt = Format.formatter -> 'k -> unit
 type slice = {off: int; len: int}
 
+open Integer
+
 module type S0 = sig
   type t
 
@@ -25,18 +27,22 @@ module type S0 = sig
   val length : t -> int
   val unsafe_get : t -> int -> char
   val get : t -> int -> char
-  val unsafe_get_int16_le : (t, int) get
-  val get_int16_le : (t, int) get
-  val unsafe_get_int16_be : (t, int) get
-  val get_int16_be : (t, int) get
-  val unsafe_get_int32_le : (t, int32) get
-  val get_int32_le : (t, int32) get
-  val unsafe_get_int32_be : (t, int32) get
-  val get_int32_be : (t, int32) get
-  val unsafe_get_int64_le : (t, int64) get
-  val get_int64_le : (t, int64) get
-  val unsafe_get_int64_be : (t, int64) get
-  val get_int64_be : (t, int64) get
+  val unsafe_get_uint16_le : (t, [unsigned | le] int16) get
+  val get_uint16_le : (t, [unsigned | le] int16) get
+  val unsafe_get_uint16_be : (t, [unsigned | be] int16) get
+  val get_uint16_be : (t, [unsigned | be] int16) get
+  val unsafe_get_int16_le : (t, le int16) get
+  val get_int16_le : (t, le int16) get
+  val unsafe_get_int16_be : (t, be int16) get
+  val get_int16_be : (t, be int16) get
+  val unsafe_get_int32_le : (t, le int32) get
+  val get_int32_le : (t, le int32) get
+  val unsafe_get_int32_be : (t, be int32) get
+  val get_int32_be : (t, be int32) get
+  val unsafe_get_int64_le : (t, le int64) get
+  val get_int64_le : (t, le int64) get
+  val unsafe_get_int64_be : (t, be int64) get
+  val get_int64_be : (t, be int64) get
   val compare : t compare
   val unsafe_sub_compare : a:slice -> b:slice -> t compare
   val sub_compare : a:slice -> b:slice -> t compare
@@ -54,18 +60,18 @@ module type S1 = sig
   val create : int -> t
   val unsafe_set : (t, char) set
   val set : (t, char) set
-  val unsafe_set_int16_le : (t, int) set
-  val set_int16_le : (t, int) set
-  val unsafe_set_int16_be : (t, int) set
-  val set_int16_be : (t, int) set
-  val unsafe_set_int32_le : (t, int32) set
-  val set_int32_le : (t, int32) set
-  val unsafe_set_int32_be : (t, int32) set
-  val set_int32_be : (t, int32) set
-  val unsafe_set_int64_le : (t, int64) set
-  val set_int64_le : (t, int64) set
-  val unsafe_set_int64_be : (t, int64) set
-  val set_int64_be : (t, int64) set
+  val unsafe_set_int16_le : (t, le int16) set
+  val set_int16_le : (t, le int16) set
+  val unsafe_set_int16_be : (t, be int16) set
+  val set_int16_be : (t, be int16) set
+  val unsafe_set_int32_le : (t, le int32) set
+  val set_int32_le : (t, le int32) set
+  val unsafe_set_int32_be : (t, be int32) set
+  val set_int32_be : (t, be int32) set
+  val unsafe_set_int64_le : (t, le int64) set
+  val set_int64_le : (t, le int64) set
+  val unsafe_set_int64_be : (t, be int64) set
+  val set_int64_be : (t, be int64) set
   val unsafe_blit : (t, t) blit
   val blit : (t, t) blit
 end

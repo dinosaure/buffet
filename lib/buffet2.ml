@@ -2,170 +2,207 @@ open S
 open Buffet0
 open Buffet1
 
+(* / *)
+
+module Bool = struct type t = True type f = False end
+
 type ('rd, 'wr, 'async) c = < rd: 'rd ; wr: 'wr ; async: 'async >
-type t = [`True]
-type f = [`False]
-type 'async ro = (t, f, 'async) c
-type 'async wo = (f, t, 'async) c
-type 'async rdwr = (t, t, 'async) c
+type 'async ro = (Bool.t, Bool.f, 'async) c
+type 'async wo = (Bool.f, Bool.t, 'async) c
+type 'async rdwr = (Bool.t, Bool.t, 'async) c
 
 type ('a, 'k) access =
-  | Bytes : (f rdwr, bytes) access
-  | String : (f ro, string) access
-  | Bigstring : (t rdwr, bigstring) access
+  | Bytes : (Bool.f rdwr, bytes) access
+  | String : (Bool.f ro, string) access
+  | Bigstring : (Bool.t rdwr, bigstring) access
 
 let bytes = Bytes
 let string = String
 let bigstring = Bigstring
 
-let make : type a k. (a, k) access -> int -> char -> k = function
-  | Bytes -> Bytes.make
-  | String -> String.make
-  | Bigstring -> Bigstring.make
+let make : type a k. (a, k) access -> int -> char -> k =
+ fun witness len chr ->
+  match witness with
+  | Bytes -> Bytes.make len chr
+  | String -> String.make len chr
+  | Bigstring -> Bigstring.make len chr
 
 let empty : type a k. (a, k) access -> k = function
   | Bytes -> Bytes.empty
   | String -> String.empty
   | Bigstring -> Bigstring.empty
 
-let unsafe_copy : type k wr async. ((t, wr, async) c, k) access -> (k, k) copy
-    = function
-  | String -> String.unsafe_copy
-  | Bytes -> Bytes.unsafe_copy
-  | Bigstring -> Bigstring.unsafe_copy
+let unsafe_copy : type k wr async.
+    ((Bool.t, wr, async) c, k) access -> (k, k) copy =
+ fun witness buf ->
+  match witness with
+  | String -> String.unsafe_copy buf
+  | Bytes -> Bytes.unsafe_copy buf
+  | Bigstring -> Bigstring.unsafe_copy buf
 
-let copy : type k wr async. ((t, wr, async) c, k) access -> (k, k) copy =
+let copy : type k wr async. ((Bool.t, wr, async) c, k) access -> (k, k) copy =
   function
   | Bytes -> Bytes.copy
   | String -> String.copy
   | Bigstring -> Bigstring.copy
 
-let unsafe_sub : type k wr async. ((t, wr, async) c, k) access -> (k, k) sub =
-  function
-  | Bytes -> Bytes.unsafe_sub
-  | String -> String.unsafe_sub
-  | Bigstring -> Bigstring.unsafe_sub
+let unsafe_sub : type k wr async.
+    ((Bool.t, wr, async) c, k) access -> (k, k) sub =
+ fun witness buf ~off ~len ->
+  match witness with
+  | Bytes -> Bytes.unsafe_sub buf ~off ~len
+  | String -> String.unsafe_sub buf ~off ~len
+  | Bigstring -> Bigstring.unsafe_sub buf ~off ~len
 
-let sub : type k wr async. ((t, wr, async) c, k) access -> (k, k) sub =
-  function
-  | Bytes -> Bytes.sub
-  | String -> String.sub
-  | Bigstring -> Bigstring.sub
+let sub : type k wr async. ((Bool.t, wr, async) c, k) access -> (k, k) sub =
+ fun witness buf ~off ~len ->
+  match witness with
+  | Bytes -> Bytes.sub buf ~off ~len
+  | String -> String.sub buf ~off ~len
+  | Bigstring -> Bigstring.sub buf ~off ~len
 
-let create : type k rd async. ((rd, t, async) c, k) access -> int -> k =
-  function
-  | Bytes -> Bytes.create
-  | Bigstring -> Bigstring.create
+let create : type k rd async. ((rd, Bool.t, async) c, k) access -> int -> k =
+ fun witness len ->
+  match witness with
+  | Bytes -> Bytes.create len
+  | Bigstring -> Bigstring.create len
 
-let length : type a k. (a, k) access -> k -> int = function
-  | Bytes -> Bytes.length
-  | String -> String.length
-  | Bigstring -> Bigstring.length
+let length : type a k. (a, k) access -> k -> int =
+ fun witness buf ->
+  match witness with
+  | Bytes -> Bytes.length buf
+  | String -> String.length buf
+  | Bigstring -> Bigstring.length buf
 
-let unsafe_get : type k wr async. ((t, wr, async) c, k) access -> (k, char) get
-    = function
-  | Bytes -> Bytes.unsafe_get
-  | String -> String.unsafe_get
-  | Bigstring -> Bigstring.unsafe_get
+let unsafe_get : type k wr async.
+    ((Bool.t, wr, async) c, k) access -> (k, char) get =
+ fun witness buf off ->
+  match witness with
+  | Bytes -> Bytes.unsafe_get buf off
+  | String -> String.unsafe_get buf off
+  | Bigstring -> Bigstring.unsafe_get buf off
 
-let unsafe_set : type k rd async. ((rd, t, async) c, k) access -> (k, char) set
-    = function
-  | Bytes -> Bytes.unsafe_set
-  | Bigstring -> Bigstring.unsafe_set
+let unsafe_set : type k rd async.
+    ((rd, Bool.t, async) c, k) access -> (k, char) set =
+ fun witness buf off chr ->
+  match witness with
+  | Bytes -> Bytes.unsafe_set buf off chr
+  | Bigstring -> Bigstring.unsafe_set buf off chr
 
-let get : type k wr async. ((t, wr, async) c, k) access -> (k, char) get =
+let get : type k wr async. ((Bool.t, wr, async) c, k) access -> (k, char) get =
  fun witness buf pos ->
   match witness with
   | Bytes -> Bytes.get buf pos
   | String -> buf.[pos]
   | Bigstring -> Bigstring.get buf pos
 
-let set : type k rd async. ((rd, t, async) c, k) access -> (k, char) set =
-  function
-  | Bytes -> Bytes.set
-  | Bigstring -> Bigstring.set
+let set : type k rd async. ((rd, Bool.t, async) c, k) access -> (k, char) set =
+ fun witness buf off chr ->
+  match witness with
+  | Bytes -> Bytes.set buf off chr
+  | Bigstring -> Bigstring.set buf off chr
 
-let pp : type k wr async. ((t, wr, async) c, k) access -> k fmt = function
-  | Bytes -> Bytes.pp
-  | String -> String.pp
-  | Bigstring -> Bigstring.pp
+let pp : type k wr async. ((Bool.t, wr, async) c, k) access -> k fmt =
+ fun witness ppf buf ->
+  match witness with
+  | Bytes -> Bytes.pp ppf buf
+  | String -> String.pp ppf buf
+  | Bigstring -> Bigstring.pp ppf buf
 
 let unsafe_sub_pp : type k wr async.
-    ((t, wr, async) c, k) access -> off:int -> len:int -> k fmt = function
-  | Bytes -> Bytes.unsafe_sub_pp
-  | String -> String.unsafe_sub_pp
-  | Bigstring -> Bigstring.unsafe_sub_pp
+    ((Bool.t, wr, async) c, k) access -> off:int -> len:int -> k fmt =
+ fun witness ~off ~len ppf buf ->
+  match witness with
+  | Bytes -> Bytes.unsafe_sub_pp ~off ~len ppf buf
+  | String -> String.unsafe_sub_pp ~off ~len ppf buf
+  | Bigstring -> Bigstring.unsafe_sub_pp ~off ~len ppf buf
 
 let sub_pp : type k wr async.
-    ((t, wr, async) c, k) access -> off:int -> len:int -> k fmt = function
-  | Bytes -> Bytes.sub_pp
-  | String -> String.sub_pp
-  | Bigstring -> Bigstring.sub_pp
+    ((Bool.t, wr, async) c, k) access -> off:int -> len:int -> k fmt =
+ fun witness ~off ~len ppf buf ->
+  match witness with
+  | Bytes -> Bytes.sub_pp ~off ~len ppf buf
+  | String -> String.sub_pp ~off ~len ppf buf
+  | Bigstring -> Bigstring.sub_pp ~off ~len ppf buf
 
-let compare : type k wr async. ((t, wr, async) c, k) access -> k compare =
-  function
-  | Bytes -> Bytes.compare
-  | String -> String.compare
-  | Bigstring -> Bigstring.compare
+let compare : type k wr async. ((Bool.t, wr, async) c, k) access -> k compare =
+ fun witness a b ->
+  match witness with
+  | Bytes -> Bytes.compare a b
+  | String -> String.compare a b
+  | Bigstring -> Bigstring.compare a b
 
 let unsafe_sub_compare : type k wr async.
-    ((t, wr, async) c, k) access -> a:slice -> b:slice -> k compare = function
-  | Bytes -> Bytes.unsafe_sub_compare
-  | String -> String.unsafe_sub_compare
-  | Bigstring -> Bigstring.unsafe_sub_compare
+    ((Bool.t, wr, async) c, k) access -> a:slice -> b:slice -> k compare =
+ fun witness ~a ~b x y ->
+  match witness with
+  | Bytes -> Bytes.unsafe_sub_compare ~a ~b x y
+  | String -> String.unsafe_sub_compare ~a ~b x y
+  | Bigstring -> Bigstring.unsafe_sub_compare ~a ~b x y
 
 let sub_compare : type k wr async.
-    ((t, wr, async) c, k) access -> a:slice -> b:slice -> k compare = function
-  | Bytes -> Bytes.sub_compare
-  | String -> String.sub_compare
-  | Bigstring -> Bigstring.sub_compare
+    ((Bool.t, wr, async) c, k) access -> a:slice -> b:slice -> k compare =
+ fun witness ~a ~b x y ->
+  match witness with
+  | Bytes -> Bytes.sub_compare ~a ~b x y
+  | String -> String.sub_compare ~a ~b x y
+  | Bigstring -> Bigstring.sub_compare ~a ~b x y
 
-let equal : type k wr async. ((t, wr, async) c, k) access -> k equal = function
-  | Bytes -> Bytes.equal
-  | String -> String.equal
-  | Bigstring -> Bigstring.equal
+let equal : type k wr async. ((Bool.t, wr, async) c, k) access -> k equal =
+ fun witness a b ->
+  match witness with
+  | Bytes -> Bytes.equal a b
+  | String -> String.equal a b
+  | Bigstring -> Bigstring.equal a b
 
 let unsafe_sub_equal : type k wr async.
-    ((t, wr, async) c, k) access -> a:slice -> b:slice -> k equal = function
-  | Bytes -> Bytes.unsafe_sub_equal
-  | String -> String.unsafe_sub_equal
-  | Bigstring -> Bigstring.unsafe_sub_equal
+    ((Bool.t, wr, async) c, k) access -> a:slice -> b:slice -> k equal =
+ fun witness ~a ~b x y ->
+  match witness with
+  | Bytes -> Bytes.unsafe_sub_equal ~a ~b x y
+  | String -> String.unsafe_sub_equal ~a ~b x y
+  | Bigstring -> Bigstring.unsafe_sub_equal ~a ~b x y
 
 let sub_equal : type k wr async.
-    ((t, wr, async) c, k) access -> a:slice -> b:slice -> k equal = function
-  | Bytes -> Bytes.sub_equal
-  | String -> String.sub_equal
-  | Bigstring -> Bigstring.sub_equal
+    ((Bool.t, wr, async) c, k) access -> a:slice -> b:slice -> k equal =
+ fun witness ~a ~b x y ->
+  match witness with
+  | Bytes -> Bytes.sub_equal ~a ~b x y
+  | String -> String.sub_equal ~a ~b x y
+  | Bigstring -> Bigstring.sub_equal ~a ~b x y
 
 module Access = struct
   type ('a, 'k) t = ('a, 'k) access
+
+  let some_refl = Some Refl.Refl
+  let none = None
 
   let equal : type a0 a1 k0 k1.
       (a0, k0) t -> (a1, k1) t -> (k0, k1) Refl.t option =
    fun a b ->
     match (a, b) with
-    | Bytes, Bytes -> Some Refl.Refl
-    | String, String -> Some Refl.Refl
-    | Bigstring, Bigstring -> Some Refl.Refl
-    | _a, _b -> None
+    | Bytes, Bytes -> some_refl
+    | String, String -> some_refl
+    | Bigstring, Bigstring -> some_refl
+    | _a, _b -> none
 
   let read : type k rd wr async.
-      ((rd, wr, async) c, k) t -> (rd, [`True]) Refl.t option = function
-    | Bytes -> Some Refl.Refl
-    | String -> Some Refl.Refl
-    | Bigstring -> Some Refl.Refl
+      ((rd, wr, async) c, k) t -> (rd, Bool.t) Refl.t option = function
+    | Bytes -> some_refl
+    | String -> some_refl
+    | Bigstring -> some_refl
 
   let write : type k rd wr async.
-      ((rd, wr, async) c, k) t -> (wr, [`True]) Refl.t option = function
-    | Bytes -> Some Refl.Refl
-    | Bigstring -> Some Refl.Refl
-    | String -> None
+      ((rd, wr, async) c, k) t -> (wr, Bool.t) Refl.t option = function
+    | Bytes -> some_refl
+    | Bigstring -> some_refl
+    | String -> none
 
   let async : type k rd wr async.
-      ((rd, wr, async) c, k) t -> (async, [`True]) Refl.t option = function
-    | Bigstring -> Some Refl.Refl
-    | Bytes -> None
-    | String -> None
+      ((rd, wr, async) c, k) t -> (async, Bool.t) Refl.t option = function
+    | Bigstring -> some_refl
+    | Bytes -> none
+    | String -> none
 end
 
 let coerce : type a k. (a, k) access -> k tag = function

@@ -98,6 +98,204 @@ let set : type k. k tag -> (k, char) set =
   | Bigstring -> Bigstring.set buf pos chr
   | String -> invalid_arg "set unavailable on string"
 
+open Integer
+
+let unsafe_get_uint16_le : type k. k tag -> (k, [le | unsigned] int16) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.unsafe_get_uint16_le buf pos
+  | String -> String.unsafe_get_uint16_le buf pos
+  | Bigstring -> Bigstring.unsafe_get_uint16_le buf pos
+
+let unsafe_get_uint16_be : type k. k tag -> (k, [be | unsigned] int16) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.unsafe_get_uint16_be buf pos
+  | String -> String.unsafe_get_uint16_be buf pos
+  | Bigstring -> Bigstring.unsafe_get_uint16_be buf pos
+
+let get_uint16_le : type k. k tag -> (k, [le | unsigned] int16) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_uint16_le buf pos
+  | String -> String.get_uint16_le buf pos
+  | Bigstring -> Bigstring.get_uint16_le buf pos
+
+let get_uint16_be : type k. k tag -> (k, [be | unsigned] int16) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_uint16_be buf pos
+  | String -> String.get_uint16_be buf pos
+  | Bigstring -> Bigstring.get_uint16_be buf pos
+
+let unsafe_get_int16_le : type k. k tag -> (k, le int16) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.unsafe_get_int16_le buf pos
+  | String -> String.unsafe_get_int16_le buf pos
+  | Bigstring -> Bigstring.unsafe_get_int16_le buf pos
+
+let unsafe_get_int32_le : type k. k tag -> (k, le int32) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.unsafe_get_int32_le buf pos
+  | String -> String.unsafe_get_int32_le buf pos
+  | Bigstring -> Bigstring.unsafe_get_int32_le buf pos
+
+let unsafe_get_int64_le : type k. k tag -> (k, le int64) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.unsafe_get_int64_le buf pos
+  | String -> String.unsafe_get_int64_le buf pos
+  | Bigstring -> Bigstring.unsafe_get_int64_le buf pos
+
+let unsafe_get_int16_be : type k. k tag -> (k, be int16) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.unsafe_get_int16_be buf pos
+  | String -> String.unsafe_get_int16_be buf pos
+  | Bigstring -> Bigstring.unsafe_get_int16_be buf pos
+
+let unsafe_get_int32_be : type k. k tag -> (k, be int32) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.unsafe_get_int32_be buf pos
+  | String -> String.unsafe_get_int32_be buf pos
+  | Bigstring -> Bigstring.unsafe_get_int32_be buf pos
+
+let unsafe_get_int64_be : type k. k tag -> (k, be int64) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.unsafe_get_int64_be buf pos
+  | String -> String.unsafe_get_int64_be buf pos
+  | Bigstring -> Bigstring.unsafe_get_int64_be buf pos
+
+let get_int16_le : type k. k tag -> (k, le int16) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_int16_le buf pos
+  | String -> String.get_int16_le buf pos
+  | Bigstring -> Bigstring.get_int16_le buf pos
+
+let get_int32_le : type k. k tag -> (k, le int32) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_int32_le buf pos
+  | String -> String.get_int32_le buf pos
+  | Bigstring -> Bigstring.get_int32_le buf pos
+
+let get_int64_le : type k. k tag -> (k, le int64) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_int64_le buf pos
+  | String -> String.get_int64_le buf pos
+  | Bigstring -> Bigstring.get_int64_le buf pos
+
+let get_int16_be : type k. k tag -> (k, be int16) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_int16_be buf pos
+  | String -> String.get_int16_be buf pos
+  | Bigstring -> Bigstring.get_int16_be buf pos
+
+let get_int32_be : type k. k tag -> (k, be int32) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_int32_be buf pos
+  | String -> String.get_int32_be buf pos
+  | Bigstring -> Bigstring.get_int32_be buf pos
+
+let get_int64_be : type k. k tag -> (k, be int64) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_int64_be buf pos
+  | String -> String.get_int64_be buf pos
+  | Bigstring -> Bigstring.get_int64_be buf pos
+
+let unsafe_set_int16_le : type k. k tag -> (k, le int16) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.unsafe_set_int16_le buf pos x
+  | Bigstring -> Bigstring.unsafe_set_int16_le buf pos x
+  | String -> invalid_arg "unsafe_set_int16_le unavailable on string"
+
+let unsafe_set_int16_be : type k. k tag -> (k, be int16) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.unsafe_set_int16_be buf pos x
+  | Bigstring -> Bigstring.unsafe_set_int16_be buf pos x
+  | String -> invalid_arg "unsafe_set_int16_be unavailable on string"
+
+let unsafe_set_int32_le : type k. k tag -> (k, le int32) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.unsafe_set_int32_le buf pos x
+  | Bigstring -> Bigstring.unsafe_set_int32_be buf pos x
+  | String -> invalid_arg "unsafe_set_int32_le unavailable on string"
+
+let unsafe_set_int32_be : type k. k tag -> (k, be int32) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.unsafe_set_int32_be buf pos x
+  | Bigstring -> Bigstring.unsafe_set_int32_be buf pos x
+  | String -> invalid_arg "unsafe_set_int32_be unavailable on string"
+
+let unsafe_set_int64_le : type k. k tag -> (k, le int64) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.unsafe_set_int64_le buf pos x
+  | Bigstring -> Bigstring.unsafe_set_int64_le buf pos x
+  | String -> invalid_arg "unsafe_set_int64_le unavailable on string"
+
+let unsafe_set_int64_be : type k. k tag -> (k, be int64) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.unsafe_set_int64_be buf pos x
+  | Bigstring -> Bigstring.unsafe_set_int64_be buf pos x
+  | String -> invalid_arg "unsafe_set_int64_be unavailable on string"
+
+let set_int16_le : type k. k tag -> (k, le int16) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.set_int16_le buf pos x
+  | Bigstring -> Bigstring.set_int16_le buf pos x
+  | String -> invalid_arg "set_int16_le unavailable on string"
+
+let set_int16_be : type k. k tag -> (k, be int16) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.set_int16_be buf pos x
+  | Bigstring -> Bigstring.set_int16_be buf pos x
+  | String -> invalid_arg "set_int16_be unavailable on string"
+
+let set_int32_le : type k. k tag -> (k, le int32) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.set_int32_le buf pos x
+  | Bigstring -> Bigstring.set_int32_le buf pos x
+  | String -> invalid_arg "set_int32_le unavailable on string"
+
+let set_int32_be : type k. k tag -> (k, be int32) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.set_int32_be buf pos x
+  | Bigstring -> Bigstring.set_int32_be buf pos x
+  | String -> invalid_arg "set_int32_be unavailable on string"
+
+let set_int64_le : type k. k tag -> (k, le int64) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.set_int64_le buf pos x
+  | Bigstring -> Bigstring.set_int64_le buf pos x
+  | String -> invalid_arg "set_int64_le unavailable on string"
+
+let set_int64_be : type k. k tag -> (k, be int64) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.set_int64_be buf pos x
+  | Bigstring -> Bigstring.set_int64_be buf pos x
+  | String -> invalid_arg "set_int64_be unavailable on string"
+
 let pp : type k. k tag -> k fmt =
  fun witness ppf buf ->
   match witness with
@@ -127,36 +325,46 @@ let compare : type k. k tag -> k compare =
   | Bigstring -> Bigstring.compare a b
 
 let unsafe_sub_compare : type k. k tag -> a:slice -> b:slice -> k compare =
-  function
-  | Bytes -> Bytes.unsafe_sub_compare
-  | String -> String.unsafe_sub_compare
-  | Bigstring -> Bigstring.unsafe_sub_compare
+ fun witness ~a ~b x y ->
+  match witness with
+  | Bytes -> Bytes.unsafe_sub_compare ~a ~b x y
+  | String -> String.unsafe_sub_compare ~a ~b x y
+  | Bigstring -> Bigstring.unsafe_sub_compare ~a ~b x y
 
-let sub_compare : type k. k tag -> a:slice -> b:slice -> k compare = function
-  | Bytes -> Bytes.sub_compare
-  | String -> String.sub_compare
-  | Bigstring -> Bigstring.sub_compare
+let sub_compare : type k. k tag -> a:slice -> b:slice -> k compare =
+ fun witness ~a ~b x y ->
+  match witness with
+  | Bytes -> Bytes.sub_compare ~a ~b x y
+  | String -> String.sub_compare ~a ~b x y
+  | Bigstring -> Bigstring.sub_compare ~a ~b x y
 
-let equal : type k. k tag -> k equal = function
-  | Bytes -> Bytes.equal
-  | String -> String.equal
-  | Bigstring -> Bigstring.equal
+let equal : type k. k tag -> k equal =
+ fun witness a b ->
+  match witness with
+  | Bytes -> Bytes.equal a b
+  | String -> String.equal a b
+  | Bigstring -> Bigstring.equal a b
 
 let unsafe_sub_equal : type k. k tag -> a:slice -> b:slice -> k equal =
-  function
-  | Bytes -> Bytes.unsafe_sub_equal
-  | String -> String.unsafe_sub_equal
-  | Bigstring -> Bigstring.unsafe_sub_equal
+ fun witness ~a ~b x y ->
+  match witness with
+  | Bytes -> Bytes.unsafe_sub_equal ~a ~b x y
+  | String -> String.unsafe_sub_equal ~a ~b x y
+  | Bigstring -> Bigstring.unsafe_sub_equal ~a ~b x y
 
-let sub_equal : type k. k tag -> a:slice -> b:slice -> k equal = function
-  | Bytes -> Bytes.sub_equal
-  | String -> String.sub_equal
-  | Bigstring -> Bigstring.sub_equal
+let sub_equal : type k. k tag -> a:slice -> b:slice -> k equal =
+ fun witness ~a ~b x y ->
+  match witness with
+  | Bytes -> Bytes.sub_equal ~a ~b x y
+  | String -> String.sub_equal ~a ~b x y
+  | Bigstring -> Bigstring.sub_equal ~a ~b x y
 
-let to_value : type k. k tag -> k -> value = function
-  | Bytes -> fun x -> Bytes x
-  | String -> fun x -> String x
-  | Bigstring -> fun x -> Bigstring x
+let to_value : type k. k tag -> k -> value =
+ fun witness x ->
+  match witness with
+  | Bytes -> Bytes x
+  | String -> String x
+  | Bigstring -> Bigstring x
 
 type v = V : 'k tag * 'k -> v
 
@@ -168,13 +376,16 @@ let of_value : value -> v = function
 module Tag = struct
   type 'k t = 'k tag
 
+  let some_refl = Some Refl.Refl
+  let none = None
+
   let equal : type a b. a tag -> b tag -> (a, b) Refl.t option =
    fun a b ->
     match (a, b) with
-    | Bytes, Bytes -> Some Refl.Refl
-    | String, String -> Some Refl.Refl
-    | Bigstring, Bigstring -> Some Refl.Refl
-    | _a, _b -> None
+    | Bytes, Bytes -> some_refl
+    | String, String -> some_refl
+    | Bigstring, Bigstring -> some_refl
+    | _a, _b -> none
 end
 
 let coerce : type k. value -> k tag -> (k tag * k) option =

@@ -7,26 +7,14 @@ type 'a aligned = < aligned: unit ; .. > as 'a
 
 (* / *)
 
+type rd_only = < rd: unit >
+type wr_only = < wr: unit >
+
+(* / *)
+
 type ('a, 'k) t = 'k tag
 
-let bytes : ('a, bytes) t = bytes
-let string : ('a, string) t = string
-let bigstring : ('a, bigstring) t = bigstring
+external ro : ('a rd, 'k) t -> (rd_only, 'k) t = "%identity"
+external wo : ('a wr, 'k) t -> (wr_only, 'k) t = "%identity"
 
-let create : type k. ('a wr, k) t -> int -> k =
- fun witness len -> create witness len
-
-let make : type k. ('a rd, k) t -> int -> char -> k =
- fun witness len chr -> make witness len chr
-
-let get : type k. ('a rd, k) t -> k -> int -> char =
- fun witness buf off -> get witness buf off
-
-let unsafe_get : type k. ('a rd, k) t -> k -> int -> char =
- fun witness buf off -> unsafe_get witness buf off
-
-let set : type k. ('a wr, k) t -> k -> int -> char -> unit =
- fun witness buf off chr -> set witness buf off chr
-
-let unsafe_set : type k. ('a wr, k) t -> k -> int -> char -> unit =
- fun witness buf off chr -> unsafe_set witness buf off chr
+include Buffet1

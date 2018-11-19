@@ -62,24 +62,24 @@ let sub (V (meta, k)) ~off ~len =
 
 let length (V (meta, k)) = length meta k
 
-let unsafe_get (V (meta, k)) =
+let unsafe_get (V (meta, k)) off =
   match Access.read (coerce meta) with
-  | Some Refl.Refl -> unsafe_get meta k
+  | Some Refl.Refl -> unsafe_get meta k off
   | None -> invalid_arg "No read access"
 
-let unsafe_set (V (meta, k)) =
+let unsafe_set (V (meta, k)) off chr =
   match Access.write (coerce meta) with
-  | Some Refl.Refl -> unsafe_set meta k
+  | Some Refl.Refl -> unsafe_set meta k off chr
   | None -> invalid_arg "No write access"
 
-let get (V (meta, k)) =
+let get (V (meta, k)) off =
   match Access.read (coerce meta) with
-  | Some Refl.Refl -> get meta k
+  | Some Refl.Refl -> get meta k off
   | None -> invalid_arg "No read access"
 
-let set (V (meta, k)) =
+let set (V (meta, k)) off chr =
   match Access.write (coerce meta) with
-  | Some Refl.Refl -> set meta k
+  | Some Refl.Refl -> set meta k off chr
   | None -> invalid_arg "No write access"
 
 let pp ppf (V (meta, k)) =

@@ -67,15 +67,15 @@ let pp {off; len; t} = unsafe_sub_pp t ~off ~len
 let to_slice : type a k. (a, k) meta -> slice = fun {off; len; _} -> {off; len}
 
 let compare : type k.
-       a:((t, 'wr0, 'async0) c, k) meta
-    -> b:((t, 'wr1, 'async1) c, k) meta
+       a:((Bool.t, 'wr0, 'async0) c, k) meta
+    -> b:((Bool.t, 'wr1, 'async1) c, k) meta
     -> k compare =
  fun ~a ~b ->
   unsafe_sub_compare ~a:(to_slice a) ~b:(to_slice b) (* b.t = *) a.t
 
 let equal : type k.
-       a:((t, 'wr0, 'async0) c, k) meta
-    -> b:((t, 'wr1, 'async1) c, k) meta
+       a:((Bool.t, 'wr0, 'async0) c, k) meta
+    -> b:((Bool.t, 'wr1, 'async1) c, k) meta
     -> k equal =
  fun ~a ~b -> unsafe_sub_equal ~a:(to_slice a) ~b:(to_slice b) (* b.t = *) a.t
 
