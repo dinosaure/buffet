@@ -67,7 +67,7 @@ module X1 = Make (Buffet.Buffet0.Bytes)
 module X2 = Make (Buffet.Buffet0.Bigstring)
 
 module RK = struct
-  let start_search ~witness pattern max_i text =
+  let[@specialise always] start_search ~witness pattern max_i text =
     let hash = ref 0 in
     let identical = ref true in
     for pos = 0 to max_i do
@@ -86,7 +86,7 @@ module RK = struct
 
   exception Found
 
-  let search ~witness pattern max_i text max_pos hash pos =
+  let[@specialise always] search ~witness pattern max_i text max_pos hash pos =
     let hash = ref hash in
     let pos = ref (pos + 1) in
     let i = ref 0 in
@@ -94,23 +94,16 @@ module RK = struct
       while !pos <= max_pos do
         hash :=
           !hash
-          - ( ( (Buffet.Buffet1.unsafe_get_uint8 [@inlined always]) witness
-                  text (!pos - 1)
-                :> int )
-            + ( (Buffet.Buffet1.unsafe_get_uint8 [@inlined always]) witness
-                  text (!pos + max_i)
+          - ( (Buffet.Buffet1.unsafe_get_uint8 witness text (!pos - 1) :> int)
+            + ( Buffet.Buffet1.unsafe_get_uint8 witness text (!pos + max_i)
                 :> int ) ) ;
         if !hash = 0 then (
           i := 0 ;
           while
             if !i = max_i then raise Found ;
             (equal : int -> int -> bool)
-              ( (Buffet.Buffet1.unsafe_get_uint8 [@inlined always]) witness
-                  text (!pos + !i)
-                :> int )
-              ( (Buffet.Buffet1.unsafe_get_uint8 [@inlined always]) witness
-                  pattern !i
-                :> int )
+              (Buffet.Buffet1.unsafe_get_uint8 witness text (!pos + !i) :> int)
+              (Buffet.Buffet1.unsafe_get_uint8 witness pattern !i :> int)
           do
             incr i
           done ) ;
@@ -119,7 +112,7 @@ module RK = struct
       none
     with Found -> Some !pos
 
-  let find_all ~witness pattern text =
+  let[@specialise always] find_all ~witness pattern text =
     let max_i = Buffet.Buffet1.length witness pattern - 1 in
     let max_pos = Buffet.Buffet1.length witness text - max_i - 1 in
     let hash, identical = start_search ~witness pattern max_i text in
@@ -181,13 +174,11 @@ let test_buffet_0_on_bytes =
 
 let test_buffet_1_on_string =
   Staged.stage (fun () ->
-      (RK.find_all ~witness:Buffet.Buffet1.string [@specialised always])
-        pattern_string text_string )
+      RK.find_all ~witness:Buffet.Buffet1.string pattern_string text_string )
 
 let test_buffet_1_on_bytes =
   Staged.stage (fun () ->
-      (RK.find_all ~witness:Buffet.Buffet1.bytes [@specialised always])
-        pattern_bytes text_bytes )
+      RK.find_all ~witness:Buffet.Buffet1.bytes pattern_bytes text_bytes )
 
 let tests =
   [ Test.make ~name:"buffet0:string" test_buffet_0_on_string
