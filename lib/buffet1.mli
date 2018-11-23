@@ -59,12 +59,12 @@ val set : 'k tag -> ('k, char) set
 
     @raise [Invalid_argument] if [witness = {!string}]. *)
 
-val unsafe_get_uint8 : 'k tag -> ('k, unsigned int8) get
-val get_uint8 : 'k tag -> ('k, unsigned int8) get
-val unsafe_get_int8 : 'k tag -> ('k, signed int8) get
-val get_int8 : 'k tag -> ('k, signed int8) get
-val unsafe_set_int8 : 'k tag -> ('k, signed int8) set
-val set_int8 : 'k tag -> ('k, signed int8) set
+val unsafe_get_uint8 : 'k tag -> ('k, unsigned int8) get [@@specialize always]
+val get_uint8 : 'k tag -> ('k, unsigned int8) get [@@specialize always]
+val unsafe_get_int8 : 'k tag -> ('k, signed int8) get [@@specialize always]
+val get_int8 : 'k tag -> ('k, signed int8) get [@@specialize always]
+val unsafe_set_int8 : 'k tag -> ('k, signed int8) set [@@specialize always]
+val set_int8 : 'k tag -> ('k, signed int8) set [@@specialize always]
 
 (** {3 Little-endian Byte order} *)
 
