@@ -94,16 +94,23 @@ module RK = struct
       while !pos <= max_pos do
         hash :=
           !hash
-          - ( (Buffet.Buffet1.unsafe_get_uint8 witness text (!pos - 1) :> int)
-            + ( Buffet.Buffet1.unsafe_get_uint8 witness text (!pos + max_i)
+          - ( ( (Buffet.Buffet1.unsafe_get_uint8 [@inlined always]) witness
+                  text (!pos - 1)
+                :> int )
+            + ( (Buffet.Buffet1.unsafe_get_uint8 [@inlined always]) witness
+                  text (!pos + max_i)
                 :> int ) ) ;
         if !hash = 0 then (
           i := 0 ;
           while
             if !i = max_i then raise Found ;
             (equal : int -> int -> bool)
-              (Buffet.Buffet1.unsafe_get_uint8 witness text (!pos + !i) :> int)
-              (Buffet.Buffet1.unsafe_get_uint8 witness pattern !i :> int)
+              ( (Buffet.Buffet1.unsafe_get_uint8 [@inlined always]) witness
+                  text (!pos + !i)
+                :> int )
+              ( (Buffet.Buffet1.unsafe_get_uint8 [@inlined always]) witness
+                  pattern !i
+                :> int )
           do
             incr i
           done ) ;
