@@ -100,6 +100,48 @@ let set : type k. k tag -> (k, char) set =
 
 open Integer
 
+let unsafe_get_uint8 : type k. k tag -> (k, unsigned int8) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.unsafe_get_uint8 buf pos
+  | String -> String.unsafe_get_uint8 buf pos
+  | Bigstring -> Bigstring.unsafe_get_uint8 buf pos
+
+let get_uint8 : type k. k tag -> (k, unsigned int8) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_uint8 buf pos
+  | String -> String.get_uint8 buf pos
+  | Bigstring -> Bigstring.get_uint8 buf pos
+
+let unsafe_get_int8 : type k. k tag -> (k, signed int8) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.unsafe_get_int8 buf pos
+  | String -> String.unsafe_get_int8 buf pos
+  | Bigstring -> Bigstring.unsafe_get_int8 buf pos
+
+let get_int8 : type k. k tag -> (k, signed int8) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_int8 buf pos
+  | String -> String.get_int8 buf pos
+  | Bigstring -> Bigstring.get_int8 buf pos
+
+let unsafe_set_int8 : type k. k tag -> (k, signed int8) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.unsafe_set_int8 buf pos x
+  | Bigstring -> Bigstring.unsafe_set_int8 buf pos x
+  | String -> invalid_arg "set unavailable on string"
+
+let set_int8 : type k. k tag -> (k, signed int8) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.set_int8 buf pos x
+  | Bigstring -> Bigstring.set_int8 buf pos x
+  | String -> invalid_arg "set unavailable on string"
+
 let unsafe_get_uint16_le : type k. k tag -> (k, [le | unsigned] int16) get =
  fun witness buf pos ->
   match witness with

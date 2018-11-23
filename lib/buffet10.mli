@@ -49,6 +49,12 @@ val get_int32_le : ('a rd, 'k) t -> ('k, le int32) get
 val get_int32_be : ('a rd, 'k) t -> ('k, be int32) get
 val get_int64_le : ('a rd, 'k) t -> ('k, le int64) get
 val get_int64_be : ('a rd, 'k) t -> ('k, be int64) get
+val set_int16_le : ('a wr, 'k) t -> ('k, le int16) set
+val set_int16_be : ('a wr, 'k) t -> ('k, be int16) set
+val set_int32_le : ('a wr, 'k) t -> ('k, le int32) set
+val set_int32_be : ('a wr, 'k) t -> ('k, be int32) set
+val set_int64_le : ('a wr, 'k) t -> ('k, le int64) set
+val set_int64_be : ('a wr, 'k) t -> ('k, be int64) set
 
 (* / *)
 

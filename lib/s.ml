@@ -27,6 +27,10 @@ module type S0 = sig
   val length : t -> int
   val unsafe_get : t -> int -> char
   val get : t -> int -> char
+  val unsafe_get_uint8 : (t, unsigned int8) get
+  val get_uint8 : (t, unsigned int8) get
+  val unsafe_get_int8 : (t, signed int8) get
+  val get_int8 : (t, signed int8) get
   val unsafe_get_uint16_le : (t, [unsigned | le] int16) get
   val get_uint16_le : (t, [unsigned | le] int16) get
   val unsafe_get_uint16_be : (t, [unsigned | be] int16) get
@@ -60,6 +64,8 @@ module type S1 = sig
   val create : int -> t
   val unsafe_set : (t, char) set
   val set : (t, char) set
+  val unsafe_set_int8 : (t, signed int8) set
+  val set_int8 : (t, signed int8) set
   val unsafe_set_int16_le : (t, le int16) set
   val set_int16_le : (t, le int16) set
   val unsafe_set_int16_be : (t, be int16) set

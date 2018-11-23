@@ -1,4 +1,5 @@
 open S
+open Integer
 open Buffet0
 open Buffet1
 
@@ -41,10 +42,11 @@ let unsafe_copy : type k wr async.
   | Bigstring -> Bigstring.unsafe_copy buf
 
 let copy : type k wr async. ((Bool.t, wr, async) c, k) access -> (k, k) copy =
-  function
-  | Bytes -> Bytes.copy
-  | String -> String.copy
-  | Bigstring -> Bigstring.copy
+ fun witness buf ~off ~len ->
+  match witness with
+  | Bytes -> Bytes.copy buf ~off ~len
+  | String -> String.copy buf ~off ~len
+  | Bigstring -> Bigstring.copy buf ~off ~len
 
 let unsafe_sub : type k wr async.
     ((Bool.t, wr, async) c, k) access -> (k, k) sub =
@@ -95,6 +97,112 @@ let get : type k wr async. ((Bool.t, wr, async) c, k) access -> (k, char) get =
   | Bytes -> Bytes.get buf pos
   | String -> buf.[pos]
   | Bigstring -> Bigstring.get buf pos
+
+let get_uint16_le : type k wr async.
+    ((Bool.t, wr, async) c, k) access -> (k, [le | unsigned] int16) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_uint16_le buf pos
+  | String -> String.get_uint16_le buf pos
+  | Bigstring -> Bigstring.get_uint16_le buf pos
+
+let get_int16_le : type k wr async.
+    ((Bool.t, wr, async) c, k) access -> (k, le int16) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_int16_le buf pos
+  | String -> String.get_int16_le buf pos
+  | Bigstring -> Bigstring.get_int16_le buf pos
+
+let set_int16_le : type k rd async.
+    ((rd, Bool.t, async) c, k) access -> (k, le int16) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.set_int16_le buf pos x
+  | Bigstring -> Bigstring.set_int16_le buf pos x
+
+let get_int32_le : type k wr async.
+    ((Bool.t, wr, async) c, k) access -> (k, le int32) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_int32_le buf pos
+  | String -> String.get_int32_le buf pos
+  | Bigstring -> Bigstring.get_int32_le buf pos
+
+let set_int32_le : type k rd async.
+    ((rd, Bool.t, async) c, k) access -> (k, le int32) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.set_int32_le buf pos x
+  | Bigstring -> Bigstring.set_int32_le buf pos x
+
+let get_int64_le : type k wr async.
+    ((Bool.t, wr, async) c, k) access -> (k, le int64) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_int64_le buf pos
+  | String -> String.get_int64_le buf pos
+  | Bigstring -> Bigstring.get_int64_le buf pos
+
+let set_int64_le : type k rd async.
+    ((rd, Bool.t, async) c, k) access -> (k, le int64) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.set_int64_le buf pos x
+  | Bigstring -> Bigstring.set_int64_le buf pos x
+
+let get_uint16_be : type k wr async.
+    ((Bool.t, wr, async) c, k) access -> (k, [be | unsigned] int16) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_uint16_be buf pos
+  | String -> String.get_uint16_be buf pos
+  | Bigstring -> Bigstring.get_uint16_be buf pos
+
+let get_int16_be : type k wr async.
+    ((Bool.t, wr, async) c, k) access -> (k, be int16) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_int16_be buf pos
+  | String -> String.get_int16_be buf pos
+  | Bigstring -> Bigstring.get_int16_be buf pos
+
+let set_int16_be : type k rd async.
+    ((rd, Bool.t, async) c, k) access -> (k, be int16) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.set_int16_be buf pos x
+  | Bigstring -> Bigstring.set_int16_be buf pos x
+
+let get_int32_be : type k wr async.
+    ((Bool.t, wr, async) c, k) access -> (k, be int32) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_int32_be buf pos
+  | String -> String.get_int32_be buf pos
+  | Bigstring -> Bigstring.get_int32_be buf pos
+
+let set_int32_be : type k rd async.
+    ((rd, Bool.t, async) c, k) access -> (k, be int32) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.set_int32_be buf pos x
+  | Bigstring -> Bigstring.set_int32_be buf pos x
+
+let get_int64_be : type k wr async.
+    ((Bool.t, wr, async) c, k) access -> (k, be int64) get =
+ fun witness buf pos ->
+  match witness with
+  | Bytes -> Bytes.get_int64_be buf pos
+  | String -> String.get_int64_be buf pos
+  | Bigstring -> Bigstring.get_int64_be buf pos
+
+let set_int64_be : type k rd async.
+    ((rd, Bool.t, async) c, k) access -> (k, be int64) set =
+ fun witness buf pos x ->
+  match witness with
+  | Bytes -> Bytes.set_int64_be buf pos x
+  | Bigstring -> Bigstring.set_int64_be buf pos x
 
 let set : type k rd async. ((rd, Bool.t, async) c, k) access -> (k, char) set =
  fun witness buf off chr ->

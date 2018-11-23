@@ -70,13 +70,14 @@ let compare : type k.
        a:((Bool.t, 'wr0, 'async0) c, k) meta
     -> b:((Bool.t, 'wr1, 'async1) c, k) meta
     -> k compare =
- fun ~a ~b ->
-  unsafe_sub_compare ~a:(to_slice a) ~b:(to_slice b) (* b.t = *) a.t
+ fun ~a ~b x y ->
+  unsafe_sub_compare ~a:(to_slice a) ~b:(to_slice b) (* b.t = *) a.t x y
 
 let equal : type k.
        a:((Bool.t, 'wr0, 'async0) c, k) meta
     -> b:((Bool.t, 'wr1, 'async1) c, k) meta
     -> k equal =
- fun ~a ~b -> unsafe_sub_equal ~a:(to_slice a) ~b:(to_slice b) (* b.t = *) a.t
+ fun ~a ~b x y ->
+  unsafe_sub_equal ~a:(to_slice a) ~b:(to_slice b) (* b.t = *) a.t x y
 
 let coerce : ('a, 'k) meta -> ('a, 'k) access = fun {t; _} -> t

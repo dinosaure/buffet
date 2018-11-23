@@ -59,6 +59,13 @@ val set : 'k tag -> ('k, char) set
 
     @raise [Invalid_argument] if [witness = {!string}]. *)
 
+val unsafe_get_uint8 : 'k tag -> ('k, unsigned int8) get
+val get_uint8 : 'k tag -> ('k, unsigned int8) get
+val unsafe_get_int8 : 'k tag -> ('k, signed int8) get
+val get_int8 : 'k tag -> ('k, signed int8) get
+val unsafe_set_int8 : 'k tag -> ('k, signed int8) set
+val set_int8 : 'k tag -> ('k, signed int8) set
+
 (** {3 Little-endian Byte order} *)
 
 val get_uint16_le : 'k tag -> ('k, [le | unsigned] int16) get
@@ -77,6 +84,13 @@ val get_int16_le : 'k tag -> ('k, le int16) get
     @raise [Invalid_argument] if [off] is not a valid index in [buf]. *)
 
 val set_int16_le : 'k tag -> ('k, le int16) set
+(** [set_int16_le witness buf off v] sets the two bytes in [buf] as a
+    little-endian signed 16-bit integer starting at offset [off] to the value
+    [v].
+
+    @raise [Invalid_argument] if [off] is not a valid index in [buf].
+
+    @raise [Invalid_argument] if [witness = {!string}]. *)
 
 val get_int32_le : 'k tag -> ('k, le int32) get
 (** [get_int32_le buf off] returns the four bytes as a little-endian signed
@@ -85,6 +99,13 @@ val get_int32_le : 'k tag -> ('k, le int32) get
     @raise [Invalid_argument] if [off] is not a valid index in [buf]. *)
 
 val set_int32_le : 'k tag -> ('k, le int32) set
+(** [set_int32_le witness buf off v] sets the four bytes in [buf] as a
+    little-endian signed 32-bit integer starting at offset [off] to the value
+    [v].
+
+    @raise [Invalid_argument] if [off] is not a valid index in [buf].
+
+    @raise [Invalid_argument] if [witness = {!string}]. *)
 
 val get_int64_le : 'k tag -> ('k, le int64) get
 (** [get_int64_le buf off] returns the eight bytes as a little-endian signed
@@ -93,6 +114,13 @@ val get_int64_le : 'k tag -> ('k, le int64) get
     @raise [Invalid_argument] if [off] is not a valid index in [buf]. *)
 
 val set_int64_le : 'k tag -> ('k, le int64) set
+(** [set_int64_le witness buf off v] sets the eight bytes in [buf] as a
+    little-endian signed 64-bit integer starting at offset [off] to the value
+    [v].
+
+    @raise [Invalid_argument] if [off] is not a valid index in [buf].
+
+    @raise [Invalid_argument] if [witness = {!string}]. *)
 
 (** {3 Big-endian Byte order} *)
 
@@ -112,6 +140,12 @@ val get_int16_be : 'k tag -> ('k, be int16) get
     @raise [Invalid_argument] if [off] is not a valid index in [buf]. *)
 
 val set_int16_be : 'k tag -> ('k, be int16) set
+(** [set_int16_be witness buf off v] sets the two bytes in [buf] as a
+    big-endian signed 16-bit integer starting at offset [off] to the value [v].
+
+    @raise [Invalid_argument] if [off] is not a valid index in [buf].
+
+    @raise [Invalid_argument] if [witness = {!string}]. *)
 
 val get_int32_be : 'k tag -> ('k, be int32) get
 (** [get_int32_be buf off] returns the four bytes as a big-endian signed 32-bit
@@ -120,6 +154,12 @@ val get_int32_be : 'k tag -> ('k, be int32) get
     @raise [Invalid_argument] if [off] is not a valid index in [buf]. *)
 
 val set_int32_be : 'k tag -> ('k, be int32) set
+(** [set_int32_be witness buf off v] sets the four bytes in [buf] as a
+    big-endian signed 32-bit integer starting at offset [off] to the value [v].
+
+    @raise [Invalid_argument] if [off] is not a valid index in [buf].
+
+    @raise [Invalid_argument] if [witness = {!string}]. *)
 
 val get_int64_be : 'k tag -> ('k, be int64) get
 (** [get_int64_be buf off] returns the eight bytes as a big-endian signed
@@ -128,6 +168,12 @@ val get_int64_be : 'k tag -> ('k, be int64) get
     @raise [Invalid_argument] if [off] is not a valid index in [buf]. *)
 
 val set_int64_be : 'k tag -> ('k, be int64) set
+(** [set_int64_be witness buf off v] sets the eight bytes in [buf] as a
+    big-endian signed 64-bit integer starting at offset [off] to the value [v].
+
+    @raise [Invalid_argument] if [off] is not a valid index in [buf].
+
+    @raise [Invalid_argument] if [witness = {!string}]. *)
 
 (** {2 Pretty-printers} *)
 
@@ -188,6 +234,8 @@ val coerce : value -> 'k tag -> ('k tag * 'k) option
 (** [coerce v witness] unpacks a buffer [v] with the witness [witness]. If
     [witness] is correct, it returns the witness of the buffer and the buffer.
     Otherwise, it returns [None]. *)
+
+(** {2 Memory-unsafe Operations} *)
 
 val unsafe_copy : 'k tag -> ('k, 'k) copy
 val unsafe_sub : 'k tag -> ('k, 'k) sub

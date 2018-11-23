@@ -1,4 +1,5 @@
-module Integer : Integer.S = Integer
+module S = S
+module Integer = Integer
 module Buffet0 = Buffet0
 module Buffet1 = Buffet1
 module Buffet2 = Buffet2

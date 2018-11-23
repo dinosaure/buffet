@@ -26,12 +26,12 @@ module GE (X : X0) = struct
   open X
   open Integer
 
-  let unsafe_get_uint16_le =
+  let unsafe_get_uint16_le : (X.t, [le | unsigned] int16) get =
     if Sys.big_endian then fun t off ->
       unsafe_to_uint16_le (swap16 (unsafe_get_int16 t off))
     else fun t off -> unsafe_to_uint16_le (unsafe_get_int16 t off)
 
-  let unsafe_get_uint16_be =
+  let unsafe_get_uint16_be : (X.t, [be | unsigned] int16) get =
     if Sys.big_endian then fun t off ->
       unsafe_to_uint16_be (unsafe_get_int16 t off)
     else fun t off -> unsafe_to_uint16_be (swap16 (unsafe_get_int16 t off))
@@ -75,12 +75,12 @@ module GE (X : X0) = struct
     else fun t off -> unsafe_to_int32_be (swap32 (unsafe_get_int32 t off))
 
   let get_int32_le t off =
-    if off < 0 || off > length t - 4 then invalid_bounds off 4 (length t)
-    else unsafe_get_int32_le t off
+    if off < 0 || off > length t - 4 then invalid_bounds off 4 (length t) ;
+    unsafe_get_int32_le t off
 
   let get_int32_be t off =
-    if off < 0 || off > length t - 4 then invalid_bounds off 4 (length t)
-    else unsafe_get_int32_be t off
+    if off < 0 || off > length t - 4 then invalid_bounds off 4 (length t) ;
+    unsafe_get_int32_be t off
 
   let unsafe_get_int64_le =
     if Sys.big_endian then fun t off ->
@@ -93,12 +93,12 @@ module GE (X : X0) = struct
     else fun t off -> unsafe_to_int64_be (swap64 (unsafe_get_int64 t off))
 
   let get_int64_le t off =
-    if off < 0 || off > length t - 8 then invalid_bounds off 8 (length t)
-    else unsafe_get_int64_le t off
+    if off < 0 || off > length t - 8 then invalid_bounds off 8 (length t) ;
+    unsafe_get_int64_le t off
 
   let get_int64_be t off =
-    if off < 0 || off > length t - 8 then invalid_bounds off 8 (length t)
-    else unsafe_get_int64_be t off
+    if off < 0 || off > length t - 8 then invalid_bounds off 8 (length t) ;
+    unsafe_get_int64_be t off
 end
 
 module PP = struct
@@ -180,6 +180,32 @@ end = struct
   let set t off chr =
     if off < 0 || off > length t - 1 then invalid_bounds off 1 (length t)
     else unsafe_set t off chr
+
+  external get_uint8 :
+    t -> int -> Integer.unsigned Integer.int8
+    = "%bytes_safe_get"
+
+  external unsafe_get_uint8 :
+    t -> int -> Integer.unsigned Integer.int8
+    = "%bytes_unsafe_get"
+
+  let get_int8 buf off =
+    Integer.unsafe_to_int8
+      ((get_uint8 buf off :> int) lsl (Sys.int_size - 8) asr (Sys.int_size - 8))
+
+  let unsafe_get_int8 buf off =
+    Integer.unsafe_to_int8
+      ( (unsafe_get_uint8 buf off :> int)
+      lsl (Sys.int_size - 8)
+      asr (Sys.int_size - 8) )
+
+  external set_int8 :
+    t -> int -> Integer.signed Integer.int8 -> unit
+    = "%bytes_safe_set"
+
+  external unsafe_set_int8 :
+    t -> int -> Integer.signed Integer.int8 -> unit
+    = "%bytes_unsafe_set"
 
   include GE (struct
     type t = bytes
@@ -361,6 +387,24 @@ end = struct
   let sub t ~off ~len =
     unsafe_bytes_to_string (Bytes.sub (unsafe_string_to_bytes t) ~off ~len)
 
+  external get_uint8 :
+    t -> int -> Integer.unsigned Integer.int8
+    = "%string_safe_get"
+
+  external unsafe_get_uint8 :
+    t -> int -> Integer.unsigned Integer.int8
+    = "%string_unsafe_get"
+
+  let get_int8 buf off =
+    Integer.unsafe_to_int8
+      ((get_uint8 buf off :> int) lsl (Sys.int_size - 8) asr (Sys.int_size - 8))
+
+  let unsafe_get_int8 buf off =
+    Integer.unsafe_to_int8
+      ( (unsafe_get_uint8 buf off :> int)
+      lsl (Sys.int_size - 8)
+      asr (Sys.int_size - 8) )
+
   include GE (struct
     type t = string
 
@@ -455,6 +499,32 @@ end = struct
       with Break -> !rs
 
   open Integer
+
+  external get_uint8 :
+    t -> int -> Integer.unsigned Integer.int8
+    = "%caml_ba_ref_1"
+
+  external unsafe_get_uint8 :
+    t -> int -> Integer.unsigned Integer.int8
+    = "%caml_ba_unsafe_ref_1"
+
+  let get_int8 buf off =
+    Integer.unsafe_to_int8
+      ((get_uint8 buf off :> int) lsl (Sys.int_size - 8) asr (Sys.int_size - 8))
+
+  let unsafe_get_int8 buf off =
+    Integer.unsafe_to_int8
+      ( (unsafe_get_uint8 buf off :> int)
+      lsl (Sys.int_size - 8)
+      asr (Sys.int_size - 8) )
+
+  external set_int8 :
+    t -> int -> Integer.signed Integer.int8 -> unit
+    = "%caml_ba_set_1"
+
+  external unsafe_set_int8 :
+    t -> int -> Integer.signed Integer.int8 -> unit
+    = "%caml_ba_unsafe_ref_1"
 
   let unsafe_get_uint16_le buf pos =
     unsafe_to_uint16_le (unsafe_get_int16_le buf pos)
