@@ -1,3 +1,4 @@
 (executable
  (name functor)
+ (ocamlopt_flags (:standard -O3 -unbox-closures -unbox-closures-factor 20))
  (libraries bechamel logs.fmt fmt.tty oclock buffet))

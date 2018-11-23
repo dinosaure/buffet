@@ -181,12 +181,12 @@ let test_buffet_0_on_bytes =
 
 let test_buffet_1_on_string =
   Staged.stage (fun () ->
-      (RK.find_all ~witness:Buffet.Buffet1.string [@specialized always])
+      (RK.find_all ~witness:Buffet.Buffet1.string [@specialised always])
         pattern_string text_string )
 
 let test_buffet_1_on_bytes =
   Staged.stage (fun () ->
-      (RK.find_all ~witness:Buffet.Buffet1.bytes [@specialized always])
+      (RK.find_all ~witness:Buffet.Buffet1.bytes [@specialised always])
         pattern_bytes text_bytes )
 
 let tests =
