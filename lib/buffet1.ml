@@ -100,7 +100,7 @@ let set : type k. k tag -> (k, char) set =
 
 open Integer
 
-let[@specialise always] unsafe_get_uint8 : type k.
+let[@specialise always] [@inline always] unsafe_get_uint8 : type k.
     k tag -> (k, unsigned int8) get =
  fun witness buf pos ->
   match witness with
@@ -108,37 +108,40 @@ let[@specialise always] unsafe_get_uint8 : type k.
   | String -> String.unsafe_get_uint8 buf pos
   | Bigstring -> Bigstring.unsafe_get_uint8 buf pos
 
-let[@specialise always] get_uint8 : type k. k tag -> (k, unsigned int8) get =
+let[@specialise always] [@inline always] get_uint8 : type k.
+    k tag -> (k, unsigned int8) get =
  fun witness buf pos ->
   match witness with
   | Bytes -> Bytes.get_uint8 buf pos
   | String -> String.get_uint8 buf pos
   | Bigstring -> Bigstring.get_uint8 buf pos
 
-let[@specialise always] unsafe_get_int8 : type k. k tag -> (k, signed int8) get
-    =
+let[@specialise always] [@inline always] unsafe_get_int8 : type k.
+    k tag -> (k, signed int8) get =
  fun witness buf pos ->
   match witness with
   | Bytes -> Bytes.unsafe_get_int8 buf pos
   | String -> String.unsafe_get_int8 buf pos
   | Bigstring -> Bigstring.unsafe_get_int8 buf pos
 
-let[@specialise always] get_int8 : type k. k tag -> (k, signed int8) get =
+let[@specialise always] [@inline always] get_int8 : type k.
+    k tag -> (k, signed int8) get =
  fun witness buf pos ->
   match witness with
   | Bytes -> Bytes.get_int8 buf pos
   | String -> String.get_int8 buf pos
   | Bigstring -> Bigstring.get_int8 buf pos
 
-let[@specialise always] unsafe_set_int8 : type k. k tag -> (k, signed int8) set
-    =
+let[@specialise always] [@inline always] unsafe_set_int8 : type k.
+    k tag -> (k, signed int8) set =
  fun witness buf pos x ->
   match witness with
   | Bytes -> Bytes.unsafe_set_int8 buf pos x
   | Bigstring -> Bigstring.unsafe_set_int8 buf pos x
   | String -> invalid_arg "set unavailable on string"
 
-let[@specialise always] set_int8 : type k. k tag -> (k, signed int8) set =
+let[@specialise always] [@inline always] set_int8 : type k.
+    k tag -> (k, signed int8) set =
  fun witness buf pos x ->
   match witness with
   | Bytes -> Bytes.set_int8 buf pos x
